@@ -1,4 +1,4 @@
-package com.connectdeaf.controller;
+package com.connectdeaf.controller.image;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

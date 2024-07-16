@@ -1,15 +1,15 @@
-package com.connectdeaf.controller;
+package com.connectdeaf.controller.customer;
 
-import com.connectdeaf.dtos.CustomerEntryDto;
-import com.connectdeaf.dtos.CustomerResponseDto;
-import com.connectdeaf.model.CustomerModel;
+import com.connectdeaf.controller.dtos.CustomerEntryDto;
+import com.connectdeaf.controller.dtos.CustomerResponseDto;
 import com.connectdeaf.repository.CustomerRepository;
 import com.connectdeaf.services.CustomerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -20,11 +20,15 @@ public class CustomerController implements IControllerCustomer {
         this.customerService = customerService;
     }
 
+    @Override
+    @PostMapping(path = "/")
+    public ResponseEntity<CustomerResponseDto> saveCustomer(CustomerEntryDto customerEntryDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.saverCustomer(customerEntryDto));
+    }
 
     @Override
-    @PostMapping(path = "/create")
-    public ResponseEntity<CustomerResponseDto> saveCustomer(CustomerEntryDto customerEntryDto) {
-        var customerModel = new CustomerModel();
-        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.saverCustomer(customerEntryDto));
+    @GetMapping(path = "/{user_id}")
+    public ResponseEntity<CustomerResponseDto> getCustomer(@PathVariable UUID user_id) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(customerService.findById(user_id));
     }
 }

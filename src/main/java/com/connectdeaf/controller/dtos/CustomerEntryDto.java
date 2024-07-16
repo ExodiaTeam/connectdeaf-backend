@@ -1,4 +1,4 @@
-package com.connectdeaf.dtos;
+package com.connectdeaf.controller.dtos;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

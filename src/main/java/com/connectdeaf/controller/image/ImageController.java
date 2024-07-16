@@ -1,4 +1,4 @@
-package com.connectdeaf.controller;
+package com.connectdeaf.controller.image;
 
 import com.connectdeaf.services.ImageService;
 import lombok.RequiredArgsConstructor;

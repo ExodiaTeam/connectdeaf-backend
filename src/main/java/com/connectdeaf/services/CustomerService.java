@@ -1,12 +1,15 @@
 package com.connectdeaf.services;
 
-import com.connectdeaf.dtos.CustomerEntryDto;
-import com.connectdeaf.dtos.CustomerResponseDto;
+import com.connectdeaf.controller.dtos.CustomerEntryDto;
+import com.connectdeaf.controller.dtos.CustomerResponseDto;
 import com.connectdeaf.exceptions.EmailAlreadyExistsException;
 import com.connectdeaf.model.CustomerModel;
 import com.connectdeaf.repository.CustomerRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CustomerService {
@@ -30,5 +33,17 @@ public class CustomerService {
         BeanUtils.copyProperties(savedCustomer, responseDto);
 
         return responseDto;
+    }
+
+    public CustomerResponseDto findById(UUID userId) throws Exception {
+        Optional<CustomerModel> customer = customerRepository.findById(userId);
+        if (customer.isEmpty()) {
+            throw new Exception("Usuário não cadastrado.");
+        }
+
+        CustomerResponseDto customerResponseDto = new CustomerResponseDto();
+        BeanUtils.copyProperties(customer.get(), customerResponseDto);
+
+        return customerResponseDto;
     }
 }
