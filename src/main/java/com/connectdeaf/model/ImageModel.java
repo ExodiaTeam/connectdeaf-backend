@@ -19,7 +19,7 @@ public class ImageModel {
     @NotBlank
     private String imageUrl;
 
-    @OneToOne
-    @JoinColumn(name = "id_user")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id_user" )
     private CustomerModel customerModel;
 }

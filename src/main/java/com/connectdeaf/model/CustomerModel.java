@@ -33,6 +33,7 @@ public class CustomerModel implements IUser {
             @Pattern(regexp = "\\S+", message = "A senha não pode conter espaços em branco")})
     @Size(min = 8)
     private String password = null;
+
     @NotBlank(message = "O número de telefone não pode estar em branco")
     @Pattern(regexp = "^\\(?\\d{2}\\)?\\s?9\\d{4}-\\d{4}$", message = "O número de telefone deve ser válido")
     private String numberPhone = null;

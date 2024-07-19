@@ -20,7 +20,7 @@ public class CustomerService {
         this.customerRepository = customerRepository;
     }
 
-    public CustomerResponseDto saverCustomer(CustomerEntryDto customerEntryDto) {
+    public CustomerResponseDto saveCustomer(CustomerEntryDto customerEntryDto) {
         CustomerModel customer = new CustomerModel();
         BeanUtils.copyProperties(customerEntryDto, customer);
 
@@ -45,5 +45,11 @@ public class CustomerService {
         BeanUtils.copyProperties(customer.get(), customerResponseDto);
 
         return customerResponseDto;
+    }
+
+    public CustomerResponseDto updateUser(UUID userId, CustomerEntryDto customerEntryDto) {
+        Optional<CustomerModel> customer = customerRepository.findById(userId);
+
+
     }
 }

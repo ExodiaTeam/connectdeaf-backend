@@ -49,7 +49,7 @@ public class CustomerTest {
 
         when(customerService.saverCustomer(customerEntryDto)).thenReturn(customerResponseDto);
 
-        mockMvc.perform(post("/api/customer/create")
+        mockMvc.perform(post("/api/customer/")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(customerEntryDto)))
                 .andExpect(status().isCreated());
