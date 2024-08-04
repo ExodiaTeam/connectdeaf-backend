@@ -16,10 +16,9 @@ public class ImageModel {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID imageId;
 
-    @NotBlank
+    @NotBlank(message = "URL da imagem não pode estar em branco")
     private String imageUrl;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "id_user" )
+    @OneToOne(mappedBy = "imageModel", fetch = FetchType.LAZY)
     private CustomerModel customerModel;
 }

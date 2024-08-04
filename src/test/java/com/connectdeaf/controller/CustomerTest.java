@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -35,23 +36,27 @@ public class CustomerTest {
 
     @BeforeEach
     public void setup() {
-        customerEntryDto = new CustomerEntryDto();
-        customerEntryDto.setName("John Doe");
-        customerEntryDto.setEmail("john.doe@example.com");
-        customerEntryDto.setPassword("Password1@");
-        customerEntryDto.setNumberPhone("(11) 91234-5678");
+        customerEntryDto = new CustomerEntryDto("John Doe",
+                "john.doe@example.com",
+                "Password1@",
+                "(11) 91234-5678");
     }
 
     @Test
-    public void whenValidInputCustomer() throws Exception {
-        CustomerResponseDto customerResponseDto = new CustomerResponseDto();
-        customerResponseDto.setId(UUID.randomUUID());
+    public void whenValidInputCustomerThenReturnsCreated() throws Exception {
+        CustomerResponseDto customerResponseDto = new CustomerResponseDto(
+                UUID.randomUUID(),
+                "John Doe",
+                "john.doe@example.com",
+                "(11) 91234-5678");
 
-        when(customerService.saverCustomer(customerEntryDto)).thenReturn(customerResponseDto);
+        when(customerService.saveCustomer(customerEntryDto))
+                .thenReturn(customerResponseDto);
 
-        mockMvc.perform(post("/api/customer/")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(customerEntryDto)))
-                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/customers/")
+                .contentType("application/json").content(objectMapper
+                        .writeValueAsString(customerEntryDto)))
+                .andExpect(status().isCreated())
+                .andExpect(content().json(objectMapper.writeValueAsString(customerResponseDto)));
     }
 }

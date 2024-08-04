@@ -14,27 +14,28 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "TB_CUSTOMER")
-public class CustomerModel implements IUser {
+public class CustomerModel {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id = null;
+    private UUID id;
 
     @NotBlank(message = "O nome não pode estar em branco")
-    private String name = null;
+    private String name;
 
     @Email(message = "O email deve ser válido")
-    private String email = null;
+    private String email;
 
     @NotBlank(message = "A senha não pode estar em branco")
-    @Pattern.List({@Pattern(regexp = "^(?=.*[0-9]).{8,}$", message = "A senha deve conter pelo menos um número"),
-            @Pattern(regexp = "^(?=.*[a-z]).{8,}$", message = "A senha deve conter pelo menos uma letra minúscula"),
-            @Pattern(regexp = "^(?=.*[A-Z]).{8,}$", message = "A senha deve conter pelo menos uma letra maiúscula"),
-            @Pattern(regexp = "^(?=.*[@#$%^&+=]).{8,}$", message = "A senha deve conter pelo menos um caractere especial"),
-            @Pattern(regexp = "\\S+", message = "A senha não pode conter espaços em branco")})
+    @Pattern.List({@Pattern(regexp = "^(?=.*[0-9]).{8,}$", message = "A senha deve conter pelo menos um número"), @Pattern(regexp = "^(?=.*[a-z]).{8,}$", message = "A senha deve conter pelo menos uma letra minúscula"), @Pattern(regexp = "^(?=.*[A-Z]).{8,}$", message = "A senha deve conter pelo menos uma letra maiúscula"), @Pattern(regexp = "^(?=.*[@#$%^&+=]).{8,}$", message = "A senha deve conter pelo menos um caractere especial"), @Pattern(regexp = "\\S+", message = "A senha não pode conter espaços em branco")})
     @Size(min = 8)
-    private String password = null;
+    private String password;
 
     @NotBlank(message = "O número de telefone não pode estar em branco")
     @Pattern(regexp = "^\\(?\\d{2}\\)?\\s?9\\d{4}-\\d{4}$", message = "O número de telefone deve ser válido")
-    private String numberPhone = null;
+    private String numberPhone;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "image_id")
+    private ImageModel imageModel;
 }

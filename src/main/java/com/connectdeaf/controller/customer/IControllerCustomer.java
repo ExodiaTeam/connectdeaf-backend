@@ -12,5 +12,10 @@ import java.util.UUID;
 public interface IControllerCustomer {
     ResponseEntity<CustomerResponseDto> saveCustomer(@RequestBody @Valid CustomerEntryDto customerEntryDto);
 
-    ResponseEntity<CustomerResponseDto> getCustomer(@PathVariable UUID user_id) throws Exception;
+    ResponseEntity<CustomerResponseDto> getCustomer(@PathVariable("userId") UUID user_id) throws Exception;
+
+    ResponseEntity<CustomerResponseDto> updateCustomer(@PathVariable("userId") UUID userId,
+                                                       @RequestBody CustomerEntryDto customerEntryDto) throws Exception;
+
+    ResponseEntity<String> deleteUser(@PathVariable("userId") UUID userId);
 }

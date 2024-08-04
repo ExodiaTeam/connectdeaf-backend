@@ -20,19 +20,25 @@ public class CustomerController implements IControllerCustomer {
 
     @Override
     @PostMapping(path = "/")
-    public ResponseEntity<CustomerResponseDto> saveCustomer(CustomerEntryDto customerEntryDto) {
+    public ResponseEntity<CustomerResponseDto> saveCustomer(@RequestBody CustomerEntryDto customerEntryDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(customerService.saveCustomer(customerEntryDto));
     }
 
     @Override
     @GetMapping(path = "/{userId}")
-    public ResponseEntity<CustomerResponseDto> getCustomer(@PathVariable UUID userId) throws Exception {
+    public ResponseEntity<CustomerResponseDto> getCustomer(@PathVariable(("userId")) UUID userId) throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(customerService.findById(userId));
     }
 
+    @Override
     @PutMapping(path = "/{userId}")
-    public ResponseEntity<CustomerResponseDto> updateCustomer(@PathVariable UUID userId,
-                                                              CustomerEntryDto customerEntryDto) throws Exception {
+    public ResponseEntity<CustomerResponseDto> updateCustomer(@PathVariable("userId") UUID userId,
+                                                              @RequestBody CustomerEntryDto customerEntryDto) throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(customerService.updateUser(userId, customerEntryDto));
+    }
+
+    @DeleteMapping(path = "/{userId}")
+    public ResponseEntity<String> deleteUser(@PathVariable("userId") UUID userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(customerService.deleteUser(userId));
     }
 }
