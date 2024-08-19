@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16
+    container_name: connectdeaf_postgres
+    environment:
+      POSTGRES_USER: connectdeaf_user
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: connectdeaf_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - connectdeaf-network
+
+volumes:
+  postgres_data:
+
+networks:
+  connectdeaf-network:
+    driver: bridge
