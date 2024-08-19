@@ -8,6 +8,6 @@ public record UserRequestDTO(
         String email,
         String password,
         String phoneNumber,
-        List<AddressRequestDTO> address
+        List<AddressRequestDTO> addresses
 ) {
 }

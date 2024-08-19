@@ -1,8 +1,7 @@
 package com.connectdeaf.infrastructure.controllers.dtos.requests;
 
-import java.util.UUID;
 
-record AddressRequestDTO(
+public record AddressRequestDTO(
         String cep,
         String street,
         String number,
