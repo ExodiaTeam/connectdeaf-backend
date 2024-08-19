@@ -1,12 +1,4 @@
-CREATE TABLE IF NOT EXISTS client (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(20) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS address (
+CREATE TABLE IF NOT EXISTS tb_address (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     cep VARCHAR(20) NOT NULL,
     street VARCHAR(255) NOT NULL,
@@ -17,4 +9,4 @@ CREATE TABLE IF NOT EXISTS address (
     state VARCHAR(255) NOT NULL,
     client_id UUID,
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
-);
+    );
