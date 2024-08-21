@@ -1,5 +1,6 @@
 package com.connectdeaf.service;
 
+import com.connectdeaf.controllers.dtos.response.UserResponseDTO;
 import com.connectdeaf.domain.address.Address;
 import com.connectdeaf.domain.user.User;
 import com.connectdeaf.controllers.dtos.requests.AddressRequestDTO;
@@ -10,8 +11,10 @@ import com.connectdeaf.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -26,7 +29,7 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(UserRequestDTO userRequestDTO) {
+    public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
         Optional<User> userOptional = userRepository.findByEmail(userRequestDTO.email());
 
         if (userOptional.isPresent()) {
@@ -46,7 +49,12 @@ public class UserService {
             addressService.saveAddress(newAddress);
         }
 
-        return savedUser;
+        return new UserResponseDTO(
+                savedUser.getId(),
+                savedUser.getName(),
+                savedUser.getEmail(),
+                savedUser.getPhoneNumber()
+        );
     }
 
 
@@ -63,9 +71,36 @@ public class UserService {
         return newAddress;
     }
 
-    public User findUser(UUID userId) {
-        return userRepository.findById(userId)
+    public UserResponseDTO findUser(UUID userId) {
+        User savedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
+
+        return new UserResponseDTO(
+                savedUser.getId(),
+                savedUser.getName(),
+                savedUser.getEmail(),
+                savedUser.getPhoneNumber()
+        );
     }
 
+    public List<UserResponseDTO> findAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::convertToUserResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private UserResponseDTO convertToUserResponseDTO(User user) {
+        return new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPhoneNumber()
+        );
+    }
+
+    public void deleteUser(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        userRepository.delete(user);
+    }
 }
