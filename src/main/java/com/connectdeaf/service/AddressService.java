@@ -1,7 +1,7 @@
-package com.connectdeaf.infrastructure.service;
+package com.connectdeaf.service;
 
 import com.connectdeaf.domain.address.Address;
-import com.connectdeaf.infrastructure.repository.AddressRepository;
+import com.connectdeaf.repository.AddressRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 

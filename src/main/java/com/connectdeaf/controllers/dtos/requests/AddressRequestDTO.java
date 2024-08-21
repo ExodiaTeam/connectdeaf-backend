@@ -1,4 +1,4 @@
-package com.connectdeaf.infrastructure.controllers.dtos.requests;
+package com.connectdeaf.controllers.dtos.requests;
 
 
 public record AddressRequestDTO(
