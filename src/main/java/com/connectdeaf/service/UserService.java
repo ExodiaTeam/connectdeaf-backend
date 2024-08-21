@@ -1,12 +1,17 @@
-package com.connectdeaf.infrastructure.service;
+package com.connectdeaf.service;
 
 import com.connectdeaf.domain.address.Address;
 import com.connectdeaf.domain.user.User;
-import com.connectdeaf.infrastructure.controllers.dtos.requests.AddressRequestDTO;
-import com.connectdeaf.infrastructure.controllers.dtos.requests.UserRequestDTO;
-import com.connectdeaf.infrastructure.repository.UserRepository;
+import com.connectdeaf.controllers.dtos.requests.AddressRequestDTO;
+import com.connectdeaf.controllers.dtos.requests.UserRequestDTO;
+import com.connectdeaf.exceptions.EmailAlreadyExistsException;
+import com.connectdeaf.exceptions.UserNotFoundException;
+import com.connectdeaf.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -22,6 +27,12 @@ public class UserService {
 
     @Transactional
     public User createUser(UserRequestDTO userRequestDTO) {
+        Optional<User> userOptional = userRepository.findByEmail(userRequestDTO.email());
+
+        if (userOptional.isPresent()) {
+            throw new EmailAlreadyExistsException(userRequestDTO.email());
+        }
+
         User newUser = new User();
         newUser.setName(userRequestDTO.name());
         newUser.setEmail(userRequestDTO.email());
@@ -38,6 +49,7 @@ public class UserService {
         return savedUser;
     }
 
+
     private Address getAddress(AddressRequestDTO addressRequestDTO, User savedUser) {
         Address newAddress = new Address();
         newAddress.setState(addressRequestDTO.state());
@@ -49,6 +61,11 @@ public class UserService {
         newAddress.setNumber(addressRequestDTO.number());
         newAddress.setUser(savedUser);
         return newAddress;
+    }
+
+    public User findUser(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
 }
