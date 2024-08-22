@@ -27,6 +27,6 @@ public class User {
     private String password;
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Address> addresses;
 }
