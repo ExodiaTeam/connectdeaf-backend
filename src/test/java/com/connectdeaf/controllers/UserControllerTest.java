@@ -1,6 +1,5 @@
 package com.connectdeaf.controllers;
 
-import com.connectdeaf.controllers.UserController;
 import com.connectdeaf.controllers.dtos.requests.AddressRequestDTO;
 import com.connectdeaf.controllers.dtos.requests.UserRequestDTO;
 import com.connectdeaf.controllers.dtos.response.UserResponseDTO;
@@ -79,14 +78,14 @@ class UserControllerTest {
                 userId, "Alice Johnson", "alice.johnson@example.com", "+1122334455"
         );
 
-        when(mockUserService.findUser(eq(userId))).thenReturn(userResponseDTO);
+        when(mockUserService.createUserDTO(eq(userId))).thenReturn(userResponseDTO);
 
         mockMvc.perform(get("/api/users/{user_id}", userId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(userResponseDTO)));
 
-        verify(mockUserService).findUser(eq(userId));
+        verify(mockUserService).createUserDTO(eq(userId));
     }
 
     @Test
