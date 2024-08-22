@@ -33,7 +33,7 @@ public class UserController {
 
     @GetMapping("/{user_id}")
     public ResponseEntity<UserResponseDTO> getUser(@PathVariable("user_id") UUID userId) {
-        UserResponseDTO user = userService.findUser(userId);
+        UserResponseDTO user = userService.createUserDTO(userId);
         return ResponseEntity.ok(user);
     }
 

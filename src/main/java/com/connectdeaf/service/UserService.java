@@ -71,7 +71,7 @@ public class UserService {
         return newAddress;
     }
 
-    public UserResponseDTO findUser(UUID userId) {
+    public UserResponseDTO createUserDTO(UUID userId) {
         User savedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
@@ -81,6 +81,16 @@ public class UserService {
                 savedUser.getEmail(),
                 savedUser.getPhoneNumber()
         );
+    }
+
+    public User findById(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+    }
+
+    public void findByEmail(String email) {
+        userRepository.findByEmail(email)
+                .orElseThrow(() -> new EmailAlreadyExistsException(email));
     }
 
     public List<UserResponseDTO> findAllUsers() {
