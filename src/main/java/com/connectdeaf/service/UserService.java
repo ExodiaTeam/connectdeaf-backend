@@ -11,9 +11,7 @@ import com.connectdeaf.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -88,11 +86,6 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
-    public void findByEmail(String email) {
-        userRepository.findByEmail(email)
-                .orElseThrow(() -> new EmailAlreadyExistsException(email));
-    }
-
     public List<UserResponseDTO> findAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::convertToUserResponseDTO)
@@ -112,5 +105,33 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
         userRepository.delete(user);
+    }
+
+    @Transactional
+    public UserResponseDTO updateUser(UUID userId, UserRequestDTO userRequestDTO) {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        existingUser.setEmail(userRequestDTO.email());
+        existingUser.setName(userRequestDTO.name());
+        existingUser.setPhoneNumber(userRequestDTO.phoneNumber());
+
+        Set<Address> updatedAddresses = new HashSet<>();
+        for (AddressRequestDTO addressRequestDTO : userRequestDTO.addresses()) {
+            Address newAddress = getAddress(addressRequestDTO, existingUser);
+            updatedAddresses.add(newAddress);
+            addressService.saveAddress(newAddress);
+        }
+
+        existingUser.getAddresses().retainAll(updatedAddresses);
+
+        User updatedUser = userRepository.save(existingUser);
+
+        return new UserResponseDTO(
+                updatedUser.getId(),
+                updatedUser.getName(),
+                updatedUser.getEmail(),
+                updatedUser.getPhoneNumber()
+        );
     }
 }
