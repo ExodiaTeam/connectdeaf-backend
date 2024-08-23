@@ -97,7 +97,7 @@ class UserServiceIntegrationTest {
     }
 
     @Test
-    void testFindUser() {
+    void testCreateUserDTO() {
         final UserRequestDTO userRequestDTO = new UserRequestDTO(
                 "Alice Johnson",
                 "alice.johnson@example.com",
@@ -115,7 +115,7 @@ class UserServiceIntegrationTest {
         );
         UserResponseDTO createdUser = userService.createUser(userRequestDTO);
 
-        final UserResponseDTO foundUser = userService.findUser(createdUser.id());
+        final UserResponseDTO foundUser = userService.createUserDTO(createdUser.id());
 
         assertThat(foundUser).isNotNull();
         assertThat(foundUser.name()).isEqualTo("Alice Johnson");

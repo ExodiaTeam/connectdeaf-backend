@@ -3,6 +3,8 @@ package com.connectdeaf.controllers;
 import com.connectdeaf.controllers.dtos.response.UserResponseDTO;
 import com.connectdeaf.controllers.dtos.requests.UserRequestDTO;
 import com.connectdeaf.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -22,18 +24,26 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Valid UserRequestDTO userRequestDTO) {
         UserResponseDTO createdUser = userService.createUser(userRequestDTO);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
+                .path("/{user_id}")
                 .buildAndExpand(createdUser.id())
                 .toUri();
         return ResponseEntity.created(location).body(createdUser);
     }
 
+    @PutMapping("/{user_id}")
+    public ResponseEntity<UserResponseDTO> updateUser(
+            @PathVariable("user_id") UUID userId,
+            @Valid @RequestBody UserRequestDTO userRequestDTO) {
+        UserResponseDTO updatedUser = userService.updateUser(userId, userRequestDTO);
+        return ResponseEntity.ok(updatedUser);
+    }
+
     @GetMapping("/{user_id}")
     public ResponseEntity<UserResponseDTO> getUser(@PathVariable("user_id") UUID userId) {
-        UserResponseDTO user = userService.findUser(userId);
+        UserResponseDTO user = userService.createUserDTO(userId);
         return ResponseEntity.ok(user);
     }
 
