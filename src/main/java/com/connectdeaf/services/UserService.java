@@ -1,4 +1,4 @@
-package com.connectdeaf.service;
+package com.connectdeaf.services;
 
 import com.connectdeaf.controllers.dtos.response.UserResponseDTO;
 import com.connectdeaf.domain.address.Address;
@@ -7,7 +7,8 @@ import com.connectdeaf.controllers.dtos.requests.AddressRequestDTO;
 import com.connectdeaf.controllers.dtos.requests.UserRequestDTO;
 import com.connectdeaf.exceptions.EmailAlreadyExistsException;
 import com.connectdeaf.exceptions.UserNotFoundException;
-import com.connectdeaf.repository.UserRepository;
+import com.connectdeaf.repositories.UserRepository;
+
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -71,7 +72,7 @@ public class UserService {
 
     public UserResponseDTO createUserDTO(UUID userId) {
         User savedUser = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new UserNotFoundException());
 
         return new UserResponseDTO(
                 savedUser.getId(),
@@ -83,7 +84,7 @@ public class UserService {
 
     public User findById(UUID userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new UserNotFoundException());
     }
 
     public List<UserResponseDTO> findAllUsers() {
@@ -103,14 +104,14 @@ public class UserService {
 
     public void deleteUser(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new UserNotFoundException());
         userRepository.delete(user);
     }
 
     @Transactional
     public UserResponseDTO updateUser(UUID userId, UserRequestDTO userRequestDTO) {
         User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new UserNotFoundException());
 
         existingUser.setEmail(userRequestDTO.email());
         existingUser.setName(userRequestDTO.name());

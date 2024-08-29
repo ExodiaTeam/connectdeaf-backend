@@ -1,7 +1,9 @@
 package com.connectdeaf.service;
 
 import com.connectdeaf.domain.address.Address;
-import com.connectdeaf.repository.AddressRepository;
+import com.connectdeaf.repositories.AddressRepository;
+import com.connectdeaf.services.AddressService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
