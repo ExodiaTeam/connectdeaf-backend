@@ -6,6 +6,7 @@ import com.connectdeaf.repositories.ProfessionalRepository;
 import com.connectdeaf.repositories.ServiceRepository;
 import com.connectdeaf.controllers.dtos.requests.ServiceRequestDTO;
 import com.connectdeaf.controllers.dtos.response.ServiceResponseDTO;
+import com.connectdeaf.controllers.dtos.response.ProfessionalResponseDTO;
 import com.connectdeaf.exceptions.ProfessionalNotFoundException;
 import com.connectdeaf.exceptions.ServiceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -44,20 +45,20 @@ public class ServiceService {
             savedService.getName(),
             savedService.getDescription(),
             savedService.getValue(),
-            savedService.getProfessional()
+            mapToProfessionalResponseDTO(savedService.getProfessional())
         );
     }
 
     public ServiceResponseDTO findServiceById(UUID serviceId) {
         ServiceEntity serviceEntity = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new ServiceNotFoundException(serviceId));
+                .orElseThrow(() -> new ServiceNotFoundException());
 
         return new ServiceResponseDTO(
                 serviceEntity.getId(),
                 serviceEntity.getName(),
                 serviceEntity.getDescription(),
                 serviceEntity.getValue(),
-                serviceEntity.getProfessional()
+                mapToProfessionalResponseDTO(serviceEntity.getProfessional())
         );
     }
 
@@ -68,15 +69,25 @@ public class ServiceService {
                         service.getName(),
                         service.getDescription(),
                         service.getValue(),
-                        service.getProfessional()
+                        mapToProfessionalResponseDTO(service.getProfessional())
                 ))
                 .collect(Collectors.toList());
     }
 
     public void deleteService(UUID serviceId) {
         ServiceEntity serviceEntity = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new ServiceNotFoundException(serviceId));
+                .orElseThrow(() -> new ServiceNotFoundException());
         serviceRepository.delete(serviceEntity);
     }
-}
 
+    private ProfessionalResponseDTO mapToProfessionalResponseDTO(Professional professional) {
+        return new ProfessionalResponseDTO(
+            professional.getId(),
+            professional.getUser().getName(),
+            professional.getUser().getEmail(),
+            professional.getUser().getPhoneNumber(),
+            professional.getQualification(),
+            professional.getAreaOfExpertise()
+        );
+    }
+}
