@@ -1,4 +1,4 @@
-package com.connectdeaf.repository;
+package com.connectdeaf.repositories;
 
 import com.connectdeaf.domain.address.Address;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,10 +1,10 @@
 package com.connectdeaf.controllers;
 
 import com.connectdeaf.controllers.dtos.response.UserResponseDTO;
+import com.connectdeaf.services.UserService;
 import com.connectdeaf.controllers.dtos.requests.UserRequestDTO;
-import com.connectdeaf.service.UserService;
+
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;

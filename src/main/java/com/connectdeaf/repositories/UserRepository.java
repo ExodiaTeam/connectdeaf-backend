@@ -1,4 +1,4 @@
-package com.connectdeaf.repository;
+package com.connectdeaf.repositories;
 
 import com.connectdeaf.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -3,7 +3,7 @@ package com.connectdeaf.controllers;
 import com.connectdeaf.controllers.dtos.requests.AddressRequestDTO;
 import com.connectdeaf.controllers.dtos.requests.UserRequestDTO;
 import com.connectdeaf.controllers.dtos.response.UserResponseDTO;
-import com.connectdeaf.service.UserService;
+import com.connectdeaf.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

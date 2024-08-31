@@ -4,7 +4,9 @@ import com.connectdeaf.controllers.dtos.requests.AddressRequestDTO;
 import com.connectdeaf.controllers.dtos.requests.UserRequestDTO;
 import com.connectdeaf.controllers.dtos.response.UserResponseDTO;
 import com.connectdeaf.exceptions.EmailAlreadyExistsException;
-import com.connectdeaf.repository.UserRepository;
+import com.connectdeaf.repositories.UserRepository;
+import com.connectdeaf.services.UserService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

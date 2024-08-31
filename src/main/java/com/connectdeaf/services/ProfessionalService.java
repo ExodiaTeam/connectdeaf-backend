@@ -1,4 +1,4 @@
-package com.connectdeaf.service;
+package com.connectdeaf.services;
 
 import com.connectdeaf.controllers.dtos.requests.ProfessionalRequestDTO;
 import com.connectdeaf.controllers.dtos.requests.UserRequestDTO;
@@ -6,8 +6,9 @@ import com.connectdeaf.controllers.dtos.response.ProfessionalResponseDTO;
 import com.connectdeaf.controllers.dtos.response.UserResponseDTO;
 import com.connectdeaf.domain.professional.Professional;
 import com.connectdeaf.domain.user.User;
-import com.connectdeaf.exceptions.UserNotFoundException;
-import com.connectdeaf.repository.ProfessionalRepository;
+import com.connectdeaf.exceptions.ProfessionalNotFoundException;
+import com.connectdeaf.repositories.ProfessionalRepository;
+
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
@@ -43,43 +44,29 @@ public class ProfessionalService {
 
         User user = userService.findById(userResponseDTO.id());
 
-        Professional newProfessional = new Professional();
-        newProfessional.setUser(user);
-        newProfessional.setQualification(professionalRequestDTO.qualification());
-        newProfessional.setAreaOfExpertise(professionalRequestDTO.areaOfExpertise());
+        Professional newProfessional = new Professional(
+                null,
+                professionalRequestDTO.qualification(),
+                professionalRequestDTO.areaOfExpertise(),
+                user
+        );
 
         Professional savedProfessional = professionalRepository.save(newProfessional);
 
-        return new ProfessionalResponseDTO(
-                savedProfessional.getId(),
-                userResponseDTO.name(),
-                userResponseDTO.email(),
-                userResponseDTO.phoneNumber(),
-                savedProfessional.getQualification(),
-                savedProfessional.getAreaOfExpertise()
-        );
+        return createProfessionalResponseDTO(savedProfessional);
     }
 
     public ProfessionalResponseDTO findById(UUID professionalId) {
         Professional professional = professionalRepository.findById(professionalId)
-                .orElseThrow(() -> new UserNotFoundException(professionalId));
+                .orElseThrow(() -> new ProfessionalNotFoundException());
 
-        User user = professional.getUser();
-
-        return new ProfessionalResponseDTO(
-                professional.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getPhoneNumber(),
-                professional.getQualification(),
-                professional.getAreaOfExpertise()
-        );
+        return createProfessionalResponseDTO(professional);
     }
 
     @Transactional
     public ProfessionalResponseDTO updateProfessional(UUID professionalId, @Valid ProfessionalRequestDTO professionalRequestDTO) {
         Professional professional = professionalRepository.findById(professionalId)
-                .orElseThrow(() -> new UserNotFoundException(professionalId));
+                .orElseThrow(() -> new ProfessionalNotFoundException());
 
         User user = professional.getUser();
 
@@ -102,14 +89,7 @@ public class ProfessionalService {
 
         Professional updatedProfessional = professionalRepository.save(professional);
 
-        return new ProfessionalResponseDTO(
-                updatedProfessional.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getPhoneNumber(),
-                updatedProfessional.getQualification(),
-                updatedProfessional.getAreaOfExpertise()
-        );
+        return createProfessionalResponseDTO(updatedProfessional);
     }
 
     private ProfessionalResponseDTO createProfessionalResponseDTO(Professional professional) {
@@ -133,7 +113,7 @@ public class ProfessionalService {
 
     public void deleteProfessional(UUID professionalId) {
         Professional professional = professionalRepository.findById(professionalId)
-                .orElseThrow(() -> new UserNotFoundException(professionalId));
+                .orElseThrow(() -> new ProfessionalNotFoundException());
 
         professionalRepository.delete(professional);
     }

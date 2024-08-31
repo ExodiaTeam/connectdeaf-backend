@@ -2,7 +2,8 @@ package com.connectdeaf.controllers;
 
 import com.connectdeaf.controllers.dtos.requests.ProfessionalRequestDTO;
 import com.connectdeaf.controllers.dtos.response.ProfessionalResponseDTO;
-import com.connectdeaf.service.ProfessionalService;
+import com.connectdeaf.services.ProfessionalService;
+
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
