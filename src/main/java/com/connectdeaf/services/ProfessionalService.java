@@ -48,7 +48,8 @@ public class ProfessionalService {
                 null,
                 professionalRequestDTO.qualification(),
                 professionalRequestDTO.areaOfExpertise(),
-                user
+                user,
+                null
         );
 
         Professional savedProfessional = professionalRepository.save(newProfessional);

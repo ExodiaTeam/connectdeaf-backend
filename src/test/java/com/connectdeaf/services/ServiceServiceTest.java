@@ -1,4 +1,4 @@
-package com.connectdeaf.service;
+package com.connectdeaf.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,6 @@ import com.connectdeaf.exceptions.ProfessionalNotFoundException;
 import com.connectdeaf.exceptions.ServiceNotFoundException;
 import com.connectdeaf.repositories.ProfessionalRepository;
 import com.connectdeaf.repositories.ServiceRepository;
-import com.connectdeaf.services.ServiceService;
 
 import java.util.List;
 import java.util.UUID;
@@ -48,7 +47,8 @@ class ServiceServiceIntegrationTest {
                 UUID.randomUUID(),
                 "Software Engineer",
                 "Web Development",
-                new User(UUID.randomUUID(), "John Doe", "john.doe@example.com", "password123", "+1234567890", null)
+                new User(UUID.randomUUID(), "John Doe", "john.doe@example.com", "password123", "+1234567890", null, null),
+                null
         );
         professionalRepository.save(professional);
 
@@ -88,7 +88,8 @@ class ServiceServiceIntegrationTest {
                 UUID.randomUUID(),
                 "Software Engineer",
                 "Web Development",
-                new User(UUID.randomUUID(), "Alice Johnson", "alice.johnson@example.com", "passwordAlice", "+1122334455", null)
+                new User(UUID.randomUUID(), "Alice Johnson", "alice.johnson@example.com", "passwordAlice", "+1122334455", null, null),
+                null
         );
         professionalRepository.save(professional);
 
@@ -121,7 +122,8 @@ class ServiceServiceIntegrationTest {
                 UUID.randomUUID(),
                 "Software Engineer",
                 "Web Development",
-                new User(UUID.randomUUID(), "John Doe", "john.doe@example.com", "password123", "+1234567890", null)
+                new User(UUID.randomUUID(), "John Doe", "john.doe@example.com", "password123", "+1234567890", null, null),
+                null
         );
         professionalRepository.save(professional1);
 
@@ -129,7 +131,8 @@ class ServiceServiceIntegrationTest {
                 UUID.randomUUID(),
                 "Consultant",
                 "Business Strategy",
-                new User(UUID.randomUUID(), "Alice Johnson", "alice.johnson@example.com", "passwordAlice", "+1122334455", null)
+                new User(UUID.randomUUID(), "Alice Johnson", "alice.johnson@example.com", "passwordAlice", "+1122334455", null, null),
+                null
         );
         professionalRepository.save(professional2);
 
@@ -160,7 +163,8 @@ class ServiceServiceIntegrationTest {
                 UUID.randomUUID(),
                 "Software Engineer",
                 "Web Development",
-                new User(UUID.randomUUID(), "Bob Brown", "bob.brown@example.com", "passwordBob", "+9988776655", null)
+                new User(UUID.randomUUID(), "Bob Brown", "bob.brown@example.com", "passwordBob", "+9988776655", null, null),
+                null
         );
         professionalRepository.save(professional);
 

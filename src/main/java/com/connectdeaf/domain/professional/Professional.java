@@ -1,6 +1,9 @@
 package com.connectdeaf.domain.professional;
 
+import com.connectdeaf.domain.appointment.Appointment;
 import com.connectdeaf.domain.user.User;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -9,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.UUID;
+
+import java.util.List;
 
 @Entity
 @Table(name = "TB_PROFESSIONAL")
@@ -30,4 +35,8 @@ public class Professional {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "professional", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Appointment> appointments;
 }
