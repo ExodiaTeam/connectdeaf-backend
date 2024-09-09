@@ -1,6 +1,5 @@
 package com.connectdeaf.domain.user;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -12,6 +11,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @SuppressWarnings("unused")
     private String name;
 
     @Getter
