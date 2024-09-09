@@ -12,8 +12,6 @@ import com.connectdeaf.repositories.RoleRepository;
 import com.connectdeaf.repositories.UserRepository;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
