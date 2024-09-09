@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS tb_address (
+CREATE TABLE IF NOT EXISTS TB_ADDRESS (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     cep VARCHAR(20) NOT NULL,
     street VARCHAR(255) NOT NULL,
@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS tb_address (
     neighborhood VARCHAR(255) NOT NULL,
     city VARCHAR(255) NOT NULL,
     state VARCHAR(255) NOT NULL,
-    client_id UUID,
-    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
-    );
+    user_id UUID,
+    FOREIGN KEY (user_id) REFERENCES TB_USER(id) ON DELETE CASCADE
+);

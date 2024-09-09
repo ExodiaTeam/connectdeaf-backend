@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS TB_APPOINTMENT (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    customer_id UUID NOT NULL,
+    professional_id UUID NOT NULL,
+    service_id UUID NOT NULL,
+    date DATE NOT NULL,
+    time TIME NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES TB_USER(id) ON DELETE CASCADE,
+    FOREIGN KEY (professional_id) REFERENCES TB_PROFESSIONAL(id) ON DELETE CASCADE,
+    FOREIGN KEY (service_id) REFERENCES TB_SERVICE(id) ON DELETE CASCADE
+);
