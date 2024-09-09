@@ -40,7 +40,7 @@ public class ProfessionalService {
                 professionalRequestDTO.addresses()
         );
 
-        UserResponseDTO userResponseDTO = userService.createUser(userRequestDTO);
+        UserResponseDTO userResponseDTO = userService.createUser(userRequestDTO, true);
 
         User user = userService.findById(userResponseDTO.id());
 
