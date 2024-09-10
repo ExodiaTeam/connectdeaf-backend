@@ -1,7 +1,11 @@
 package com.connectdeaf.controllers.dtos.requests;
 
+import java.util.UUID;
+
 public record AppointmentRequestDTO(
-    String date,
-    String time
-) { 
+        UUID customerId,
+        UUID professionalId,
+        UUID serviceId,
+        UUID scheduleId
+) {
 }
