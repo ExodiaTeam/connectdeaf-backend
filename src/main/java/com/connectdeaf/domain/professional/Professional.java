@@ -6,13 +6,15 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.UUID;
-
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -39,4 +41,15 @@ public class Professional {
     @OneToMany(mappedBy = "professional", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Appointment> appointments;
+
+    
+    @NotNull
+    private LocalTime workStartTime; 
+
+    @NotNull
+    private LocalTime workEndTime;  
+
+    @NotNull
+    private Duration breakDuration;
 }
+

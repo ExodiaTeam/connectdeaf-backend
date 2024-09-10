@@ -2,6 +2,7 @@ package com.connectdeaf.controllers;
 
 import com.connectdeaf.controllers.dtos.requests.ProfessionalRequestDTO;
 import com.connectdeaf.controllers.dtos.response.ProfessionalResponseDTO;
+import com.connectdeaf.controllers.dtos.response.ScheduleResponseDTO;
 import com.connectdeaf.services.ProfessionalService;
 
 import jakarta.validation.Valid;
@@ -55,4 +56,10 @@ public class ProfessionalController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{professionalId}/schedules")
+    public ResponseEntity<List<ScheduleResponseDTO>> getSchedulesByProfessional(
+            @PathVariable UUID professionalId) {
+        List<ScheduleResponseDTO> schedules = professionalService.getSchedulesByProfessional(professionalId);
+        return ResponseEntity.ok(schedules);
+    }
 }
