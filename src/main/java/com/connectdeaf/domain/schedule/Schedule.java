@@ -37,8 +37,5 @@ public class Schedule {
 
     @NotNull
     private LocalTime endTime;
-
-    @NotNull
-    private Boolean isAvailable;
 }
 
