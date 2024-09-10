@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -64,9 +65,6 @@ public class ProfessionalService {
         );
     
         Professional savedProfessional = professionalRepository.save(newProfessional);
-    
-        // Gerar e salvar horários na tabela SCHEDULE
-        generateAndSaveSchedule(savedProfessional);
     
         return createProfessionalResponseDTO(savedProfessional);
     }
@@ -136,46 +134,46 @@ public class ProfessionalService {
         professionalRepository.delete(professional);
     }
 
-    private void generateAndSaveSchedule(Professional professional) {
-        LocalTime workStartTime = professional.getWorkStartTime();
-        LocalTime workEndTime = professional.getWorkEndTime();
-        Duration breakDuration = professional.getBreakDuration();
-
-        LocalTime currentTime = workStartTime;
-
-        while (currentTime.isBefore(workEndTime)) {
-            // Crie um horário disponível
-            LocalTime nextTime = currentTime.plusMinutes(breakDuration.toMinutes());
-
-            // Verifique se o próximo horário não ultrapassa o final do expediente
-            if (nextTime.isAfter(workEndTime)) {
-                break;
-            }
-
-            // Salvar horário disponível
-            Schedule newSchedule = new Schedule(
-                null,
-                professional,
-                LocalDate.now(),
-                currentTime,
-                nextTime,
-                true
-            );
-
-            scheduleRepository.save(newSchedule);
-
-            // Atualize o currentTime
-            currentTime = nextTime;
-        }
-    }
-
     // Método para listar os horários de um profissional
-    public List<ScheduleResponseDTO> getSchedulesByProfessional(UUID professionalId) {
-        List<Schedule> schedules = scheduleRepository.findByProfessionalId(professionalId);
-        return schedules.stream()
+    public List<ScheduleResponseDTO> getSchedulesByProfessionalAndDate(UUID professionalId, LocalDate date) {
+        List<Schedule> schedulesNotAvaibled = scheduleRepository.findByProfessionalIdAndDate(professionalId, date);
+        List<Schedule> schedulesAvaibled = generateSchedulesAvaibled(professionalId, date, schedulesNotAvaibled);
+        return schedulesAvaibled.stream()
                 .map(this::createScheduleResponseDTO)
                 .collect(Collectors.toList());
     }
+
+    private List<Schedule> generateSchedulesAvaibled(UUID professionalId, LocalDate date, List<Schedule> schedulesNotAvaibled) {
+        Professional professional = professionalRepository.findById(professionalId)
+                .orElseThrow(() -> new ProfessionalNotFoundException());
+    
+        LocalTime workStartTime = professional.getWorkStartTime();
+        LocalTime workEndTime = professional.getWorkEndTime();
+        Duration sessionDuration = professional.getBreakDuration();  // Duração da sessão de trabalho
+    
+        List<Schedule> schedulesAvaibled = new ArrayList<>();
+        LocalTime currentTime = workStartTime;
+    
+        // Itera sobre o tempo de trabalho até o final do expediente
+        while (!currentTime.plus(sessionDuration).isAfter(workEndTime)) {
+            final LocalTime startTime = currentTime;
+            final LocalTime endTime = currentTime.plus(sessionDuration);
+            
+            // Verifica se o horário está disponível
+            boolean isAvailable = schedulesNotAvaibled.stream()
+                    .noneMatch(schedule -> schedule.getStartTime().equals(startTime));
+            
+            if (isAvailable) {
+                schedulesAvaibled.add(new Schedule(null, professional, date, startTime, endTime));
+            }
+    
+            // Avança para o próximo slot
+            currentTime = endTime;
+        }
+    
+        return schedulesAvaibled;
+    }
+    
 
     // Método auxiliar para converter Schedule em DTO
     private ScheduleResponseDTO createScheduleResponseDTO(Schedule schedule) {
@@ -184,8 +182,7 @@ public class ProfessionalService {
                 schedule.getProfessional().getId(),
                 schedule.getDate(),
                 schedule.getStartTime(),
-                schedule.getEndTime(),
-                schedule.getIsAvailable()
+                schedule.getEndTime()
         );
     }
 }

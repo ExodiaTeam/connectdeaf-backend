@@ -1,5 +1,7 @@
 package com.connectdeaf.services;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,7 +21,6 @@ import com.connectdeaf.domain.service.ServiceEntity;
 import com.connectdeaf.domain.user.User;
 import com.connectdeaf.exceptions.AppointmentNotFoundException;
 import com.connectdeaf.exceptions.ProfessionalNotFoundException;
-import com.connectdeaf.exceptions.ScheduleNotFoundException;
 import com.connectdeaf.exceptions.ServiceNotFoundException;
 import com.connectdeaf.exceptions.UserNotFoundException;
 import com.connectdeaf.repositories.AppointmentRepository;
@@ -60,15 +61,18 @@ public class AppointmentService {
         ServiceEntity service = serviceRepository.findById(appointmentRequestDTO.serviceId())
                 .orElseThrow(() -> new ServiceNotFoundException());
 
-        Schedule schedule = scheduleRepository.findById(appointmentRequestDTO.scheduleId())
-                .orElseThrow(() -> new ScheduleNotFoundException());
+        LocalDate date = appointmentRequestDTO.date();
+        LocalTime startTime = appointmentRequestDTO.startTime();
+        LocalTime endTime = appointmentRequestDTO.endTime();
 
-        if (!schedule.getIsAvailable()) {
-            throw new IllegalStateException("Selected time slot is not available");
-        }
-
-        // Marcar o horário como ocupado
-        schedule.setIsAvailable(false);
+        Schedule schedule = new Schedule(
+                null,
+                professional,
+                date,
+                startTime,
+                endTime
+        );
+        
         scheduleRepository.save(schedule);
 
         Appointment appointment = new Appointment();
@@ -130,22 +134,6 @@ public class AppointmentService {
         appointmentRepository.delete(appointment);
     }
 
-    private UserResponseDTO mapToUserResponseDTO(User user) {
-        return new UserResponseDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoneNumber());
-    }
-
-    private ProfessionalResponseDTO mapToProfessionalResponseDTO(Professional professional) {
-        return new ProfessionalResponseDTO(professional.getId(), professional.getUser().getName(), 
-            professional.getUser().getEmail(), professional.getUser().getPhoneNumber(), 
-            professional.getQualification(), professional.getAreaOfExpertise(), 
-            professional.getWorkStartTime(), professional.getWorkEndTime(), professional.getBreakDuration());
-    }
-
-    private ServiceResponseDTO mapToServiceResponseDTO(ServiceEntity service) {
-        return new ServiceResponseDTO(service.getId(), service.getName(), service.getDescription(), service.getValue(),
-            mapToProfessionalResponseDTO(service.getProfessional()));
-    }
-
     public AppointmentResponseDTO updateStatus(UUID appointmentId, String status) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException());
@@ -165,8 +153,24 @@ public class AppointmentService {
         );
     }
 
+    private UserResponseDTO mapToUserResponseDTO(User user) {
+        return new UserResponseDTO(user.getId(), user.getName(), user.getEmail(), user.getPhoneNumber());
+    }
+
+    private ProfessionalResponseDTO mapToProfessionalResponseDTO(Professional professional) {
+        return new ProfessionalResponseDTO(professional.getId(), professional.getUser().getName(), 
+            professional.getUser().getEmail(), professional.getUser().getPhoneNumber(), 
+            professional.getQualification(), professional.getAreaOfExpertise(), 
+            professional.getWorkStartTime(), professional.getWorkEndTime(), professional.getBreakDuration());
+    }
+
+    private ServiceResponseDTO mapToServiceResponseDTO(ServiceEntity service) {
+        return new ServiceResponseDTO(service.getId(), service.getName(), service.getDescription(), service.getValue(),
+            mapToProfessionalResponseDTO(service.getProfessional()));
+    } 
+
     private ScheduleResponseDTO mapToScheduleResponseDTO(Schedule schedule) {
-        return new ScheduleResponseDTO(schedule.getId(), schedule.getProfessional().getId(), schedule.getDate(), schedule.getStartTime(), schedule.getEndTime(), null);
+        return new ScheduleResponseDTO(schedule.getId(), schedule.getProfessional().getId(), schedule.getDate(), schedule.getStartTime(), schedule.getEndTime());
     }
 }
 

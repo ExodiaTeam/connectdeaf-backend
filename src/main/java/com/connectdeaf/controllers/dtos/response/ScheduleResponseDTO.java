@@ -9,7 +9,6 @@ public record ScheduleResponseDTO(
         UUID professionalId,
         LocalDate date,
         LocalTime startTime,
-        LocalTime endTime,
-        Boolean isAvailable
+        LocalTime endTime
 ) {
 }

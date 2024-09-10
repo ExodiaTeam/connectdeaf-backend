@@ -1,5 +1,6 @@
 package com.connectdeaf.repositories;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,5 +12,5 @@ import com.connectdeaf.domain.schedule.Schedule;
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, UUID> {
 
-    List<Schedule> findByProfessionalId(UUID professionalId);
+    List<Schedule> findByProfessionalIdAndDate(UUID professionalId, LocalDate date);
 }
