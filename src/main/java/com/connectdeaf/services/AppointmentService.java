@@ -1,31 +1,34 @@
 package com.connectdeaf.services;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.connectdeaf.controllers.dtos.requests.AppointmentRequestDTO;
 import com.connectdeaf.controllers.dtos.response.AppointmentResponseDTO;
 import com.connectdeaf.controllers.dtos.response.ProfessionalResponseDTO;
+import com.connectdeaf.controllers.dtos.response.ScheduleResponseDTO;
 import com.connectdeaf.controllers.dtos.response.ServiceResponseDTO;
 import com.connectdeaf.controllers.dtos.response.UserResponseDTO;
 import com.connectdeaf.domain.appointment.Appointment;
 import com.connectdeaf.domain.professional.Professional;
+import com.connectdeaf.domain.schedule.Schedule;
 import com.connectdeaf.domain.service.ServiceEntity;
 import com.connectdeaf.domain.user.User;
 import com.connectdeaf.exceptions.AppointmentNotFoundException;
 import com.connectdeaf.exceptions.ProfessionalNotFoundException;
+import com.connectdeaf.exceptions.ScheduleNotFoundException;
 import com.connectdeaf.exceptions.ServiceNotFoundException;
 import com.connectdeaf.exceptions.UserNotFoundException;
 import com.connectdeaf.repositories.AppointmentRepository;
 import com.connectdeaf.repositories.ProfessionalRepository;
+import com.connectdeaf.repositories.ScheduleRepository;
 import com.connectdeaf.repositories.ServiceRepository;
 import com.connectdeaf.repositories.UserRepository;
 
 import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class AppointmentService {
@@ -34,78 +37,92 @@ public class AppointmentService {
     private final UserRepository userRepository;
     private final ProfessionalRepository professionalRepository;
     private final ServiceRepository serviceRepository;
+    private final ScheduleRepository scheduleRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, ProfessionalRepository professionalRepository, ServiceRepository serviceRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository,
+                              ProfessionalRepository professionalRepository, ServiceRepository serviceRepository,
+                              ScheduleRepository scheduleRepository) {
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
         this.professionalRepository = professionalRepository;
         this.serviceRepository = serviceRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     @Transactional
-    public AppointmentResponseDTO createAppointment(UUID userId, UUID professionalId, UUID serviceId, AppointmentRequestDTO appointmentRequestDTO) {
+    public AppointmentResponseDTO createAppointment(AppointmentRequestDTO appointmentRequestDTO) {
+        User customer = userRepository.findById(appointmentRequestDTO.customerId())
+                .orElseThrow(() -> new UserNotFoundException());
 
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException());
+        Professional professional = professionalRepository.findById(appointmentRequestDTO.professionalId())
+                .orElseThrow(() -> new ProfessionalNotFoundException());
 
-        Professional professional = professionalRepository.findById(professionalId)
-            .orElseThrow(() -> new ProfessionalNotFoundException());
+        ServiceEntity service = serviceRepository.findById(appointmentRequestDTO.serviceId())
+                .orElseThrow(() -> new ServiceNotFoundException());
 
-        ServiceEntity service = serviceRepository.findById(serviceId)
-            .orElseThrow(() -> new ServiceNotFoundException());
+        Schedule schedule = scheduleRepository.findById(appointmentRequestDTO.scheduleId())
+                .orElseThrow(() -> new ScheduleNotFoundException());
 
-        LocalDate date = LocalDate.parse(appointmentRequestDTO.date(), DateTimeFormatter.ISO_LOCAL_DATE);
-        LocalTime time = LocalTime.parse(appointmentRequestDTO.time(), DateTimeFormatter.ISO_LOCAL_TIME);
+        if (!schedule.getIsAvailable()) {
+            throw new IllegalStateException("Selected time slot is not available");
+        }
+
+        // Marcar o horário como ocupado
+        schedule.setIsAvailable(false);
+        scheduleRepository.save(schedule);
 
         Appointment appointment = new Appointment();
-        appointment.setDate(date);
-        appointment.setTime(time);
-        appointment.setStatus("PENDING");
-        appointment.setCustomer(user);
+        appointment.setCustomer(customer);
         appointment.setProfessional(professional);
         appointment.setService(service);
+        appointment.setSchedule(schedule);
+        appointment.setStatus("PENDING");
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
         return new AppointmentResponseDTO(
-            savedAppointment.getId(),
-            mapToUserResponseDTO(savedAppointment.getCustomer()),
-            mapToProfessionalResponseDTO(savedAppointment.getProfessional()),
-            mapToServiceResponseDTO(savedAppointment.getService()),
-            savedAppointment.getDate(),
-            savedAppointment.getTime(),
-            savedAppointment.getStatus()
+                savedAppointment.getId(),
+                mapToUserResponseDTO(savedAppointment.getCustomer()),
+                mapToProfessionalResponseDTO(savedAppointment.getProfessional()),
+                mapToServiceResponseDTO(savedAppointment.getService()),
+                mapToScheduleResponseDTO(savedAppointment.getSchedule()),
+                savedAppointment.getStatus()
         );
     }
 
     public AppointmentResponseDTO findAppointmentById(UUID appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException());
-
+    
+        Schedule schedule = appointment.getSchedule(); // Obter o horário relacionado
+    
         return new AppointmentResponseDTO(
             appointment.getId(),
             mapToUserResponseDTO(appointment.getCustomer()),
             mapToProfessionalResponseDTO(appointment.getProfessional()),
             mapToServiceResponseDTO(appointment.getService()),
-            appointment.getDate(),
-            appointment.getTime(),
+            mapToScheduleResponseDTO(schedule), // Passar o schedule corretamente
             appointment.getStatus()
         );
     }
+    
 
     public List<AppointmentResponseDTO> findAllAppointments() {
-        return appointmentRepository.findAll().stream()
-                .map(appointment -> new AppointmentResponseDTO(
+    return appointmentRepository.findAll().stream()
+            .map(appointment -> {
+                Schedule schedule = appointment.getSchedule(); // Obter o horário relacionado
+
+                return new AppointmentResponseDTO(
                     appointment.getId(),
                     mapToUserResponseDTO(appointment.getCustomer()),
                     mapToProfessionalResponseDTO(appointment.getProfessional()),
                     mapToServiceResponseDTO(appointment.getService()),
-                    appointment.getDate(),
-                    appointment.getTime(),
+                    mapToScheduleResponseDTO(schedule), // Passar o schedule corretamente
                     appointment.getStatus()
-                ))
-                .collect(Collectors.toList());
-    }
+                );
+            })
+            .collect(Collectors.toList());
+}
 
     public void deleteAppointment(UUID appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
@@ -120,12 +137,36 @@ public class AppointmentService {
     private ProfessionalResponseDTO mapToProfessionalResponseDTO(Professional professional) {
         return new ProfessionalResponseDTO(professional.getId(), professional.getUser().getName(), 
             professional.getUser().getEmail(), professional.getUser().getPhoneNumber(), 
-            professional.getQualification(), professional.getAreaOfExpertise());
+            professional.getQualification(), professional.getAreaOfExpertise(), 
+            professional.getWorkStartTime(), professional.getWorkEndTime(), professional.getBreakDuration());
     }
 
     private ServiceResponseDTO mapToServiceResponseDTO(ServiceEntity service) {
         return new ServiceResponseDTO(service.getId(), service.getName(), service.getDescription(), service.getValue(),
             mapToProfessionalResponseDTO(service.getProfessional()));
+    }
+
+    public AppointmentResponseDTO updateStatus(UUID appointmentId, String status) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppointmentNotFoundException());
+    
+        appointment.setStatus(status);
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+    
+        Schedule schedule = savedAppointment.getSchedule(); // Obter o horário relacionado
+    
+        return new AppointmentResponseDTO(
+            savedAppointment.getId(),
+            mapToUserResponseDTO(savedAppointment.getCustomer()),
+            mapToProfessionalResponseDTO(savedAppointment.getProfessional()),
+            mapToServiceResponseDTO(savedAppointment.getService()),
+            mapToScheduleResponseDTO(schedule), // Passar o schedule corretamente
+            savedAppointment.getStatus()
+        );
+    }
+
+    private ScheduleResponseDTO mapToScheduleResponseDTO(Schedule schedule) {
+        return new ScheduleResponseDTO(schedule.getId(), schedule.getProfessional().getId(), schedule.getDate(), schedule.getStartTime(), schedule.getEndTime(), null);
     }
 }
 
