@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.List;
-
+// teste
 @Entity
 @Table(name = "TB_PROFESSIONAL")
 @Getter
@@ -42,14 +42,12 @@ public class Professional {
     @JsonManagedReference
     private List<Appointment> appointments;
 
-    
-    @NotNull
-    private LocalTime workStartTime; 
+    @Column(nullable = true) // Alterado para true
+    private LocalTime workStartTime;
 
-    @NotNull
-    private LocalTime workEndTime;  
+    @Column(nullable = true) // Alterado para true
+    private LocalTime workEndTime;
 
-    @NotNull
+    @Column(name = "break_duration", nullable = true) // Alterado para true
     private Duration breakDuration;
 }
-
