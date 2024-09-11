@@ -56,4 +56,8 @@
 
         public User() {
         }
+
+        public Set<Role> getRoles() {
+            return roles;
+        }
     }

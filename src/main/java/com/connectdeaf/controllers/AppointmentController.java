@@ -7,6 +7,7 @@ import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,7 +22,6 @@ import com.connectdeaf.services.AppointmentService;
 
 import jakarta.validation.Valid;
 
-
 @RestController
 @RequestMapping("/api/appointments")
 public class AppointmentController {
@@ -33,11 +33,12 @@ public class AppointmentController {
 
     @PostMapping
     public ResponseEntity<AppointmentResponseDTO> createAppointment(
-            @RequestParam UUID customerId, 
-            @RequestParam UUID professionalId, 
-            @RequestParam UUID serviceId, 
+            @RequestParam UUID customerId,
+            @RequestParam UUID professionalId,
+            @RequestParam UUID serviceId,
             @RequestBody @Valid AppointmentRequestDTO appointmentRequestDTO) {
-        AppointmentResponseDTO createdAppointment = appointmentService.createAppointment(customerId, professionalId, serviceId, appointmentRequestDTO);
+        AppointmentResponseDTO createdAppointment = appointmentService.createAppointment(customerId, professionalId,
+                serviceId, appointmentRequestDTO);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{appointment_id}")
                 .buildAndExpand(createdAppointment.id())
@@ -62,5 +63,32 @@ public class AppointmentController {
         appointmentService.deleteAppointment(appointmentId);
         return ResponseEntity.noContent().build();
     }
-}
 
+    @PatchMapping("/{appointment_id}/approve")
+    public ResponseEntity<AppointmentResponseDTO> approveAppointment(
+            @PathVariable("appointment_id") UUID appointmentId) {
+        AppointmentResponseDTO updatedAppointment = appointmentService.updateStatus(appointmentId, "APPROVED");
+        return ResponseEntity.ok(updatedAppointment);
+    }
+
+    @PatchMapping("/{appointment_id}/reject")
+    public ResponseEntity<AppointmentResponseDTO> rejectAppointment(
+            @PathVariable("appointment_id") UUID appointmentId) {
+        AppointmentResponseDTO updatedAppointment = appointmentService.updateStatus(appointmentId, "REJECTED");
+        return ResponseEntity.ok(updatedAppointment);
+    }
+
+    @PatchMapping("/{appointment_id}/cancel")
+    public ResponseEntity<AppointmentResponseDTO> cancelAppointment(
+            @PathVariable("appointment_id") UUID appointmentId) {
+        AppointmentResponseDTO updatedAppointment = appointmentService.updateStatus(appointmentId, "CANCELLED");
+        return ResponseEntity.ok(updatedAppointment);
+    }
+
+    @PatchMapping("/{appointment_id}/finish")
+    public ResponseEntity<AppointmentResponseDTO> finishAppointment(
+            @PathVariable("appointment_id") UUID appointmentId) {
+        AppointmentResponseDTO updatedAppointment = appointmentService.updateStatus(appointmentId, "FINISHED");
+        return ResponseEntity.ok(updatedAppointment);
+    }
+}

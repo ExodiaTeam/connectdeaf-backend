@@ -41,7 +41,7 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        authServiceUnderTest = new AuthService(mockUserService, mockJwtEncoder, mockBCryptPasswordEncoder);
+        //authServiceUnderTest = new AuthService(mockUserService, mockJwtEncoder, mockBCryptPasswordEncoder);
     }
 
     @Test

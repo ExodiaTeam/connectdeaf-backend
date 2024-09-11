@@ -35,7 +35,8 @@ public class AppointmentService {
     private final ProfessionalRepository professionalRepository;
     private final ServiceRepository serviceRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, ProfessionalRepository professionalRepository, ServiceRepository serviceRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository,
+            ProfessionalRepository professionalRepository, ServiceRepository serviceRepository) {
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
         this.professionalRepository = professionalRepository;
@@ -43,16 +44,17 @@ public class AppointmentService {
     }
 
     @Transactional
-    public AppointmentResponseDTO createAppointment(UUID userId, UUID professionalId, UUID serviceId, AppointmentRequestDTO appointmentRequestDTO) {
+    public AppointmentResponseDTO createAppointment(UUID userId, UUID professionalId, UUID serviceId,
+            AppointmentRequestDTO appointmentRequestDTO) {
 
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException());
+                .orElseThrow(() -> new UserNotFoundException());
 
         Professional professional = professionalRepository.findById(professionalId)
-            .orElseThrow(() -> new ProfessionalNotFoundException());
+                .orElseThrow(() -> new ProfessionalNotFoundException());
 
         ServiceEntity service = serviceRepository.findById(serviceId)
-            .orElseThrow(() -> new ServiceNotFoundException());
+                .orElseThrow(() -> new ServiceNotFoundException());
 
         LocalDate date = LocalDate.parse(appointmentRequestDTO.date(), DateTimeFormatter.ISO_LOCAL_DATE);
         LocalTime time = LocalTime.parse(appointmentRequestDTO.time(), DateTimeFormatter.ISO_LOCAL_TIME);
@@ -68,14 +70,13 @@ public class AppointmentService {
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
         return new AppointmentResponseDTO(
-            savedAppointment.getId(),
-            mapToUserResponseDTO(savedAppointment.getCustomer()),
-            mapToProfessionalResponseDTO(savedAppointment.getProfessional()),
-            mapToServiceResponseDTO(savedAppointment.getService()),
-            savedAppointment.getDate(),
-            savedAppointment.getTime(),
-            savedAppointment.getStatus()
-        );
+                savedAppointment.getId(),
+                mapToUserResponseDTO(savedAppointment.getCustomer()),
+                mapToProfessionalResponseDTO(savedAppointment.getProfessional()),
+                mapToServiceResponseDTO(savedAppointment.getService()),
+                savedAppointment.getDate(),
+                savedAppointment.getTime(),
+                savedAppointment.getStatus());
     }
 
     public AppointmentResponseDTO findAppointmentById(UUID appointmentId) {
@@ -83,27 +84,25 @@ public class AppointmentService {
                 .orElseThrow(() -> new AppointmentNotFoundException());
 
         return new AppointmentResponseDTO(
-            appointment.getId(),
-            mapToUserResponseDTO(appointment.getCustomer()),
-            mapToProfessionalResponseDTO(appointment.getProfessional()),
-            mapToServiceResponseDTO(appointment.getService()),
-            appointment.getDate(),
-            appointment.getTime(),
-            appointment.getStatus()
-        );
+                appointment.getId(),
+                mapToUserResponseDTO(appointment.getCustomer()),
+                mapToProfessionalResponseDTO(appointment.getProfessional()),
+                mapToServiceResponseDTO(appointment.getService()),
+                appointment.getDate(),
+                appointment.getTime(),
+                appointment.getStatus());
     }
 
     public List<AppointmentResponseDTO> findAllAppointments() {
         return appointmentRepository.findAll().stream()
                 .map(appointment -> new AppointmentResponseDTO(
-                    appointment.getId(),
-                    mapToUserResponseDTO(appointment.getCustomer()),
-                    mapToProfessionalResponseDTO(appointment.getProfessional()),
-                    mapToServiceResponseDTO(appointment.getService()),
-                    appointment.getDate(),
-                    appointment.getTime(),
-                    appointment.getStatus()
-                ))
+                        appointment.getId(),
+                        mapToUserResponseDTO(appointment.getCustomer()),
+                        mapToProfessionalResponseDTO(appointment.getProfessional()),
+                        mapToServiceResponseDTO(appointment.getService()),
+                        appointment.getDate(),
+                        appointment.getTime(),
+                        appointment.getStatus()))
                 .collect(Collectors.toList());
     }
 
@@ -118,16 +117,31 @@ public class AppointmentService {
     }
 
     private ProfessionalResponseDTO mapToProfessionalResponseDTO(Professional professional) {
-        return new ProfessionalResponseDTO(professional.getId(), professional.getUser().getName(), 
-            professional.getUser().getEmail(), professional.getUser().getPhoneNumber(), 
-            professional.getQualification(), professional.getAreaOfExpertise());
+        return new ProfessionalResponseDTO(professional.getId(), professional.getUser().getName(),
+                professional.getUser().getEmail(), professional.getUser().getPhoneNumber(),
+                professional.getQualification(), professional.getAreaOfExpertise());
     }
 
     private ServiceResponseDTO mapToServiceResponseDTO(ServiceEntity service) {
         return new ServiceResponseDTO(service.getId(), service.getName(), service.getDescription(), service.getValue(),
-            mapToProfessionalResponseDTO(service.getProfessional()));
+                mapToProfessionalResponseDTO(service.getProfessional()));
+    }
+
+    public AppointmentResponseDTO updateStatus(UUID appointmentId, String status) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppointmentNotFoundException());
+
+        appointment.setStatus(status);
+
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        return new AppointmentResponseDTO(
+                savedAppointment.getId(),
+                mapToUserResponseDTO(savedAppointment.getCustomer()),
+                mapToProfessionalResponseDTO(savedAppointment.getProfessional()),
+                mapToServiceResponseDTO(savedAppointment.getService()),
+                savedAppointment.getDate(),
+                savedAppointment.getTime(),
+                savedAppointment.getStatus());
     }
 }
-
-
-
