@@ -41,8 +41,8 @@ public class AppointmentService {
     private final ScheduleRepository scheduleRepository;
 
     public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository,
-                              ProfessionalRepository professionalRepository, ServiceRepository serviceRepository,
-                              ScheduleRepository scheduleRepository) {
+            ProfessionalRepository professionalRepository, ServiceRepository serviceRepository,
+            ScheduleRepository scheduleRepository) {
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
         this.professionalRepository = professionalRepository;
@@ -70,9 +70,8 @@ public class AppointmentService {
                 professional,
                 date,
                 startTime,
-                endTime
-        );
-        
+                endTime);
+
         scheduleRepository.save(schedule);
 
         Appointment appointment = new Appointment();
@@ -90,43 +89,39 @@ public class AppointmentService {
                 mapToProfessionalResponseDTO(savedAppointment.getProfessional()),
                 mapToServiceResponseDTO(savedAppointment.getService()),
                 mapToScheduleResponseDTO(savedAppointment.getSchedule()),
-                savedAppointment.getStatus()
-        );
+                savedAppointment.getStatus());
     }
 
     public AppointmentResponseDTO findAppointmentById(UUID appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException());
-    
+
         Schedule schedule = appointment.getSchedule(); // Obter o horário relacionado
-    
+
         return new AppointmentResponseDTO(
-            appointment.getId(),
-            mapToUserResponseDTO(appointment.getCustomer()),
-            mapToProfessionalResponseDTO(appointment.getProfessional()),
-            mapToServiceResponseDTO(appointment.getService()),
-            mapToScheduleResponseDTO(schedule), // Passar o schedule corretamente
-            appointment.getStatus()
-        );
+                appointment.getId(),
+                mapToUserResponseDTO(appointment.getCustomer()),
+                mapToProfessionalResponseDTO(appointment.getProfessional()),
+                mapToServiceResponseDTO(appointment.getService()),
+                mapToScheduleResponseDTO(schedule), // Passar o schedule corretamente
+                appointment.getStatus());
     }
-    
 
     public List<AppointmentResponseDTO> findAllAppointments() {
-    return appointmentRepository.findAll().stream()
-            .map(appointment -> {
-                Schedule schedule = appointment.getSchedule(); // Obter o horário relacionado
+        return appointmentRepository.findAll().stream()
+                .map(appointment -> {
+                    Schedule schedule = appointment.getSchedule(); // Obter o horário relacionado
 
-                return new AppointmentResponseDTO(
-                    appointment.getId(),
-                    mapToUserResponseDTO(appointment.getCustomer()),
-                    mapToProfessionalResponseDTO(appointment.getProfessional()),
-                    mapToServiceResponseDTO(appointment.getService()),
-                    mapToScheduleResponseDTO(schedule), // Passar o schedule corretamente
-                    appointment.getStatus()
-                );
-            })
-            .collect(Collectors.toList());
-}
+                    return new AppointmentResponseDTO(
+                            appointment.getId(),
+                            mapToUserResponseDTO(appointment.getCustomer()),
+                            mapToProfessionalResponseDTO(appointment.getProfessional()),
+                            mapToServiceResponseDTO(appointment.getService()),
+                            mapToScheduleResponseDTO(schedule), // Passar o schedule corretamente
+                            appointment.getStatus());
+                })
+                .collect(Collectors.toList());
+    }
 
     public void deleteAppointment(UUID appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
@@ -137,20 +132,19 @@ public class AppointmentService {
     public AppointmentResponseDTO updateStatus(UUID appointmentId, String status) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException());
-    
+
         appointment.setStatus(status);
         Appointment savedAppointment = appointmentRepository.save(appointment);
-    
+
         Schedule schedule = savedAppointment.getSchedule(); // Obter o horário relacionado
-    
+
         return new AppointmentResponseDTO(
-            savedAppointment.getId(),
-            mapToUserResponseDTO(savedAppointment.getCustomer()),
-            mapToProfessionalResponseDTO(savedAppointment.getProfessional()),
-            mapToServiceResponseDTO(savedAppointment.getService()),
-            mapToScheduleResponseDTO(schedule), // Passar o schedule corretamente
-            savedAppointment.getStatus()
-        );
+                savedAppointment.getId(),
+                mapToUserResponseDTO(savedAppointment.getCustomer()),
+                mapToProfessionalResponseDTO(savedAppointment.getProfessional()),
+                mapToServiceResponseDTO(savedAppointment.getService()),
+                mapToScheduleResponseDTO(schedule), // Passar o schedule corretamente
+                savedAppointment.getStatus());
     }
 
     private UserResponseDTO mapToUserResponseDTO(User user) {
@@ -158,21 +152,19 @@ public class AppointmentService {
     }
 
     private ProfessionalResponseDTO mapToProfessionalResponseDTO(Professional professional) {
-        return new ProfessionalResponseDTO(professional.getId(), professional.getUser().getName(), 
-            professional.getUser().getEmail(), professional.getUser().getPhoneNumber(), 
-            professional.getQualification(), professional.getAreaOfExpertise(), 
-            professional.getWorkStartTime(), professional.getWorkEndTime(), professional.getBreakDuration());
+        return new ProfessionalResponseDTO(professional.getId(), professional.getUser().getName(),
+                professional.getUser().getEmail(), professional.getUser().getPhoneNumber(),
+                professional.getQualification(), professional.getAreaOfExpertise(),
+                professional.getWorkStartTime(), professional.getWorkEndTime(), professional.getBreakDuration());
     }
 
     private ServiceResponseDTO mapToServiceResponseDTO(ServiceEntity service) {
         return new ServiceResponseDTO(service.getId(), service.getName(), service.getDescription(), service.getValue(),
-            mapToProfessionalResponseDTO(service.getProfessional()));
-    } 
+                mapToProfessionalResponseDTO(service.getProfessional()));
+    }
 
     private ScheduleResponseDTO mapToScheduleResponseDTO(Schedule schedule) {
-        return new ScheduleResponseDTO(schedule.getId(), schedule.getProfessional().getId(), schedule.getDate(), schedule.getStartTime(), schedule.getEndTime());
+        return new ScheduleResponseDTO(schedule.getId(), schedule.getProfessional().getId(), schedule.getDate(),
+                schedule.getStartTime(), schedule.getEndTime());
     }
 }
-
-
-

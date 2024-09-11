@@ -53,9 +53,9 @@ class UserControllerTest {
     @Test
     void testCreateUser() throws Exception {
         UUID userId = UUID.randomUUID();
-        UserRequestDTO userRequestDTO = new UserRequestDTO(
-                "John Doe", "john.doe@example.com", "password123", "+1234567890", new ArrayList<>()
-        );
+        //UserRequestDTO userRequestDTO = new UserRequestDTO(
+        //        "John Doe", "john.doe@example.com", "password123", "+1234567890", new ArrayList<>()
+        //);
         UserResponseDTO userResponseDTO = new UserResponseDTO(
                 userId, "John Doe", "john.doe@example.com", "+1234567890"
         );

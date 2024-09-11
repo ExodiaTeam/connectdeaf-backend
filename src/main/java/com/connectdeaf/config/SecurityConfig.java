@@ -49,6 +49,9 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         // Rotas administrativas
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Rotas de aprovação e rejeição de agendamentos apenas para profissionais
+                        .requestMatchers(HttpMethod.PATCH, "/api/appointments/*/approve").hasRole("PROFESSIONAL")
+                        .requestMatchers(HttpMethod.PATCH, "/api/appointments/*/reject").hasRole("PROFESSIONAL")
                         // Rotas autenticadas
                         .requestMatchers("/api/**").authenticated()
                         // Qualquer outra requisição precisa estar autenticada

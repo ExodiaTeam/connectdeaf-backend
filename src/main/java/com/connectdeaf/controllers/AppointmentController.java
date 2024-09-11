@@ -21,7 +21,6 @@ import com.connectdeaf.services.AppointmentService;
 
 import jakarta.validation.Valid;
 
-
 @RestController
 @RequestMapping("/api/appointments")
 public class AppointmentController {
