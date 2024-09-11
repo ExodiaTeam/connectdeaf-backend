@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.List;
-
+// teste
 @Entity
 @Table(name = "TB_PROFESSIONAL")
 @Getter
