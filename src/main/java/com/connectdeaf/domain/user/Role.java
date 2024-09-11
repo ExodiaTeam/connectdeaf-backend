@@ -5,13 +5,13 @@ import lombok.Getter;
 
 @Entity
 @Table(name = "TB_ROLES")
-@Getter
 public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @SuppressWarnings("unused")
     private String name;
 
     @Getter
@@ -25,9 +25,5 @@ public class Role {
         Values(long id) {
             this.id = id;
         }
-    }
-
-    public String getName() {
-        return name;
     }
 }
