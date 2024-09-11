@@ -28,6 +28,7 @@ import com.connectdeaf.repositories.ProfessionalRepository;
 import com.connectdeaf.repositories.ScheduleRepository;
 import com.connectdeaf.repositories.ServiceRepository;
 import com.connectdeaf.repositories.UserRepository;
+import com.connectdeaf.controllers.dtos.response.AddressResponseDTO;
 
 import jakarta.transaction.Transactional;
 
@@ -179,11 +180,23 @@ public class AppointmentService {
         }
 
         private ProfessionalResponseDTO mapToProfessionalResponseDTO(Professional professional) {
-                return new ProfessionalResponseDTO(professional.getId(), professional.getUser().getName(),
-                                professional.getUser().getEmail(), professional.getUser().getPhoneNumber(),
-                                professional.getQualification(), professional.getAreaOfExpertise(),
-                                professional.getWorkStartTime(), professional.getWorkEndTime(),
-                                professional.getBreakDuration());
+                return new ProfessionalResponseDTO(
+                                professional.getId(),
+                                professional.getUser().getName(),
+                                professional.getUser().getEmail(),
+                                professional.getUser().getPhoneNumber(),
+                                professional.getQualification(),
+                                professional.getAreaOfExpertise(),
+                                professional.getWorkStartTime(),
+                                professional.getWorkEndTime(),
+                                professional.getBreakDuration(),
+                                professional.getUser().getAddresses().stream().map(
+                                                address -> new AddressResponseDTO(
+                                                                address.getStreet(),
+                                                                address.getCity(),
+                                                                address.getState(),
+                                                                address.getCep()))
+                                                .collect(Collectors.toList()));
         }
 
         private ServiceResponseDTO mapToServiceResponseDTO(ServiceEntity service) {

@@ -3,6 +3,7 @@ package com.connectdeaf.controllers.dtos.response;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.UUID;
+import java.util.List;
 
 public record ProfessionalResponseDTO(
         UUID id,
@@ -13,7 +14,8 @@ public record ProfessionalResponseDTO(
         String areaOfExpertise,
         LocalTime workStartTime,  
         LocalTime workEndTime,    
-        Duration breakDuration    
+        Duration breakDuration,
+        List<AddressResponseDTO> addresses
 ) {
 }
 
