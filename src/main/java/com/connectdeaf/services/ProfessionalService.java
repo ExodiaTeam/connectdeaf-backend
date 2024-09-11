@@ -11,6 +11,7 @@ import com.connectdeaf.domain.user.User;
 import com.connectdeaf.exceptions.ProfessionalNotFoundException;
 import com.connectdeaf.repositories.ProfessionalRepository;
 import com.connectdeaf.repositories.ScheduleRepository;
+import com.connectdeaf.controllers.dtos.response.AddressResponseDTO;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -24,35 +25,33 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-
 @Service
 public class ProfessionalService {
     private final ProfessionalRepository professionalRepository;
     private final UserService userService;
     private final ScheduleRepository scheduleRepository;
 
-    public ProfessionalService(ProfessionalRepository professionalRepository, UserService userService, ScheduleRepository scheduleRepository) {
+    public ProfessionalService(ProfessionalRepository professionalRepository, UserService userService,
+            ScheduleRepository scheduleRepository) {
         this.professionalRepository = professionalRepository;
         this.userService = userService;
         this.scheduleRepository = scheduleRepository;
     }
 
-
     @Transactional
     public ProfessionalResponseDTO createProfessional(ProfessionalRequestDTO professionalRequestDTO) {
         // userService.findByEmail(professionalRequestDTO.email());
-    
+
         UserRequestDTO userRequestDTO = new UserRequestDTO(
                 professionalRequestDTO.name(),
                 professionalRequestDTO.email(),
                 professionalRequestDTO.password(),
                 professionalRequestDTO.phoneNumber(),
-                professionalRequestDTO.addresses()
-        );
-    
+                professionalRequestDTO.addresses());
+
         UserResponseDTO userResponseDTO = userService.createUser(userRequestDTO, true);
         User user = userService.findById(userResponseDTO.id());
-    
+
         Professional newProfessional = new Professional(
                 null,
                 professionalRequestDTO.qualification(),
@@ -61,11 +60,10 @@ public class ProfessionalService {
                 null,
                 professionalRequestDTO.workStartTime(),
                 professionalRequestDTO.workEndTime(),
-                professionalRequestDTO.breakDuration()
-        );
-    
+                professionalRequestDTO.breakDuration());
+
         Professional savedProfessional = professionalRepository.save(newProfessional);
-    
+
         return createProfessionalResponseDTO(savedProfessional);
     }
 
@@ -77,7 +75,8 @@ public class ProfessionalService {
     }
 
     @Transactional
-    public ProfessionalResponseDTO updateProfessional(UUID professionalId, @Valid ProfessionalRequestDTO professionalRequestDTO) {
+    public ProfessionalResponseDTO updateProfessional(UUID professionalId,
+            @Valid ProfessionalRequestDTO professionalRequestDTO) {
         Professional professional = professionalRepository.findById(professionalId)
                 .orElseThrow(() -> new ProfessionalNotFoundException());
 
@@ -88,8 +87,7 @@ public class ProfessionalService {
                 professionalRequestDTO.email(),
                 user.getPassword(),
                 professionalRequestDTO.phoneNumber(),
-                professionalRequestDTO.addresses()
-        );
+                professionalRequestDTO.addresses());
 
         userService.updateUser(user.getId(), userRequestDTO);
 
@@ -116,8 +114,14 @@ public class ProfessionalService {
                 professional.getAreaOfExpertise(),
                 professional.getWorkStartTime(),
                 professional.getWorkEndTime(),
-                professional.getBreakDuration()
-        );
+                professional.getBreakDuration(),
+                professional.getUser().getAddresses().stream().map(
+                        address -> new AddressResponseDTO(
+                                address.getStreet(),
+                                address.getCity(),
+                                address.getState(),
+                                address.getCep()))
+                        .collect(Collectors.toList()));
     }
 
     public List<ProfessionalResponseDTO> findAll() {
@@ -143,37 +147,37 @@ public class ProfessionalService {
                 .collect(Collectors.toList());
     }
 
-    private List<Schedule> generateSchedulesAvaibled(UUID professionalId, LocalDate date, List<Schedule> schedulesNotAvaibled) {
+    private List<Schedule> generateSchedulesAvaibled(UUID professionalId, LocalDate date,
+            List<Schedule> schedulesNotAvaibled) {
         Professional professional = professionalRepository.findById(professionalId)
                 .orElseThrow(() -> new ProfessionalNotFoundException());
-    
+
         LocalTime workStartTime = professional.getWorkStartTime();
         LocalTime workEndTime = professional.getWorkEndTime();
-        Duration sessionDuration = professional.getBreakDuration();  // Duração da sessão de trabalho
-    
+        Duration sessionDuration = professional.getBreakDuration(); // Duração da sessão de trabalho
+
         List<Schedule> schedulesAvaibled = new ArrayList<>();
         LocalTime currentTime = workStartTime;
-    
+
         // Itera sobre o tempo de trabalho até o final do expediente
         while (!currentTime.plus(sessionDuration).isAfter(workEndTime)) {
             final LocalTime startTime = currentTime;
             final LocalTime endTime = currentTime.plus(sessionDuration);
-            
+
             // Verifica se o horário está disponível
             boolean isAvailable = schedulesNotAvaibled.stream()
                     .noneMatch(schedule -> schedule.getStartTime().equals(startTime));
-            
+
             if (isAvailable) {
                 schedulesAvaibled.add(new Schedule(null, professional, date, startTime, endTime));
             }
-    
+
             // Avança para o próximo slot
             currentTime = endTime;
         }
-    
+
         return schedulesAvaibled;
     }
-    
 
     // Método auxiliar para converter Schedule em DTO
     private ScheduleResponseDTO createScheduleResponseDTO(Schedule schedule) {
@@ -182,7 +186,6 @@ public class ProfessionalService {
                 schedule.getProfessional().getId(),
                 schedule.getDate(),
                 schedule.getStartTime(),
-                schedule.getEndTime()
-        );
+                schedule.getEndTime());
     }
 }

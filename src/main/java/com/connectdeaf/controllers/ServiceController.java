@@ -17,6 +17,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.connectdeaf.controllers.dtos.requests.ServiceRequestDTO;
 import com.connectdeaf.controllers.dtos.response.ServiceResponseDTO;
+import com.connectdeaf.domain.service.ServiceEntity;
 import com.connectdeaf.services.ServiceService;
 
 import jakarta.validation.Valid;
@@ -32,7 +33,7 @@ public class ServiceController {
 
     @PostMapping
     public ResponseEntity<ServiceResponseDTO> createService(
-            @RequestParam UUID professionalId, 
+            @RequestParam UUID professionalId,
             @RequestBody @Valid ServiceRequestDTO serviceRequestDTO) {
         ServiceResponseDTO createdService = serviceService.createService(professionalId, serviceRequestDTO);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -58,5 +59,14 @@ public class ServiceController {
     public ResponseEntity<Void> deleteService(@PathVariable("service_id") UUID serviceId) {
         serviceService.deleteService(serviceId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ServiceEntity>> findServices(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String state) {
+        List<ServiceEntity> services = serviceService.findServices(name, city, state);
+        return ResponseEntity.ok(services);
     }
 }

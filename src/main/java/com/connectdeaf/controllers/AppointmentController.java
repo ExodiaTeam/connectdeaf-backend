@@ -86,5 +86,19 @@ public class AppointmentController {
         AppointmentResponseDTO updatedAppointment = appointmentService.updateStatus(appointmentId, "FINISHED");
         return ResponseEntity.ok(updatedAppointment);
     }
+
+    @GetMapping("/professional/{professional_id}")
+    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByProfessional(
+            @PathVariable("professional_id") UUID professionalId) {
+        List<AppointmentResponseDTO> appointments = appointmentService.findAppointmentsByProfessional(professionalId);
+        return ResponseEntity.ok(appointments);
+    }
+
+    @GetMapping("/customer/{customer_id}")
+    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByCustomer(
+            @PathVariable("customer_id") UUID customerId) {
+        List<AppointmentResponseDTO> appointments = appointmentService.findAppointmentsByCustomer(customerId);
+        return ResponseEntity.ok(appointments);
+    }
 }
 

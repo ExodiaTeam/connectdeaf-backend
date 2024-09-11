@@ -11,6 +11,8 @@ import com.connectdeaf.exceptions.ProfessionalNotFoundException;
 import com.connectdeaf.exceptions.ServiceNotFoundException;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.domain.Specification;
+import com.connectdeaf.controllers.dtos.response.AddressResponseDTO;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,7 +32,7 @@ public class ServiceService {
     public ServiceResponseDTO createService(UUID professionalId, ServiceRequestDTO serviceRequestDTO) {
 
         Professional professional = professionalRepository.findById(professionalId)
-            .orElseThrow(() -> new ProfessionalNotFoundException());
+                .orElseThrow(() -> new ProfessionalNotFoundException());
 
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setName(serviceRequestDTO.name());
@@ -41,12 +43,11 @@ public class ServiceService {
         ServiceEntity savedService = serviceRepository.save(serviceEntity);
 
         return new ServiceResponseDTO(
-            savedService.getId(),
-            savedService.getName(),
-            savedService.getDescription(),
-            savedService.getValue(),
-            mapToProfessionalResponseDTO(savedService.getProfessional())
-        );
+                savedService.getId(),
+                savedService.getName(),
+                savedService.getDescription(),
+                savedService.getValue(),
+                mapToProfessionalResponseDTO(savedService.getProfessional()));
     }
 
     public ServiceResponseDTO findServiceById(UUID serviceId) {
@@ -58,8 +59,7 @@ public class ServiceService {
                 serviceEntity.getName(),
                 serviceEntity.getDescription(),
                 serviceEntity.getValue(),
-                mapToProfessionalResponseDTO(serviceEntity.getProfessional())
-        );
+                mapToProfessionalResponseDTO(serviceEntity.getProfessional()));
     }
 
     public List<ServiceResponseDTO> findAllServices() {
@@ -69,8 +69,7 @@ public class ServiceService {
                         service.getName(),
                         service.getDescription(),
                         service.getValue(),
-                        mapToProfessionalResponseDTO(service.getProfessional())
-                ))
+                        mapToProfessionalResponseDTO(service.getProfessional())))
                 .collect(Collectors.toList());
     }
 
@@ -80,17 +79,53 @@ public class ServiceService {
         serviceRepository.delete(serviceEntity);
     }
 
+    public List<ServiceEntity> findServices(String name, String city, String state) {
+        Specification<ServiceEntity> spec = Specification.where(null);
+
+        if (name != null && !name.isEmpty()) {
+            spec = spec.and(nameContains(name));
+        }
+        if (city != null && !city.isEmpty()) {
+            spec = spec.and(cityContains(city));
+        }
+        if (state != null && !state.isEmpty()) {
+            spec = spec.and(stateContains(state));
+        }
+
+        return serviceRepository.findAll(spec);
+    }
+
+    private Specification<ServiceEntity> nameContains(String name) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("name"), "%" + name + "%");
+    }
+
+    private Specification<ServiceEntity> cityContains(String city) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.join("professional").get("city"),
+                "%" + city + "%");
+    }
+
+    private Specification<ServiceEntity> stateContains(String state) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.join("professional").get("state"),
+                "%" + state + "%");
+    }
+
     private ProfessionalResponseDTO mapToProfessionalResponseDTO(Professional professional) {
         return new ProfessionalResponseDTO(
-            professional.getId(),
-            professional.getUser().getName(),
-            professional.getUser().getEmail(),
-            professional.getUser().getPhoneNumber(),
-            professional.getQualification(),
-            professional.getAreaOfExpertise(),
-            professional.getWorkStartTime(),
-            professional.getWorkEndTime(),
-            professional.getBreakDuration()
-        );
+                professional.getId(),
+                professional.getUser().getName(),
+                professional.getUser().getEmail(),
+                professional.getUser().getPhoneNumber(),
+                professional.getQualification(),
+                professional.getAreaOfExpertise(),
+                professional.getWorkStartTime(),
+                professional.getWorkEndTime(),
+                professional.getBreakDuration(),
+                professional.getUser().getAddresses().stream().map(
+                        address -> new AddressResponseDTO(
+                                address.getStreet(),
+                                address.getCity(),
+                                address.getState(),
+                                address.getCep()))
+                        .collect(Collectors.toList()));
     }
 }
