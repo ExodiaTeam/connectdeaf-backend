@@ -2,6 +2,7 @@ package com.connectdeaf.controllers;
 
 import com.connectdeaf.controllers.dtos.requests.ProfessionalRequestDTO;
 import com.connectdeaf.controllers.dtos.response.ProfessionalResponseDTO;
+import com.connectdeaf.controllers.dtos.response.ScheduleResponseDTO;
 import com.connectdeaf.services.ProfessionalService;
 
 import jakarta.validation.Valid;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,4 +57,11 @@ public class ProfessionalController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{professionalId}/schedules")
+    public ResponseEntity<List<ScheduleResponseDTO>> getSchedulesByProfessional(
+            @PathVariable UUID professionalId,
+            @Valid @RequestBody LocalDate date) {
+        List<ScheduleResponseDTO> schedules = professionalService.getSchedulesByProfessionalAndDate(professionalId, date);
+        return ResponseEntity.ok(schedules);
+    }
 }

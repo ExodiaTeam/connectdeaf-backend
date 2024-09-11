@@ -87,7 +87,10 @@ public class ServiceService {
             professional.getUser().getEmail(),
             professional.getUser().getPhoneNumber(),
             professional.getQualification(),
-            professional.getAreaOfExpertise()
+            professional.getAreaOfExpertise(),
+            professional.getWorkStartTime(),
+            professional.getWorkEndTime(),
+            professional.getBreakDuration()
         );
     }
 }
