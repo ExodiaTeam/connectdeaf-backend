@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+
 @Entity
 @Table(name = "TB_USER")
 @Getter
@@ -25,7 +26,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String name;
-    @Column(unique = true)
+
+    @Column(unique = true) 
     @Email
     private String email;
     private String password;
