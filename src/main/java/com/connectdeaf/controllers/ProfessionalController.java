@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-
 @RestController
 @RequestMapping("/api/professionals")
 public class ProfessionalController {
@@ -27,7 +26,8 @@ public class ProfessionalController {
     @PostMapping
     public ResponseEntity<ProfessionalResponseDTO> createProfessional(
             @Valid @RequestBody ProfessionalRequestDTO professionalRequestDTO) {
-        ProfessionalResponseDTO professionalResponseDTO = professionalService.createProfessional(professionalRequestDTO);
+        ProfessionalResponseDTO professionalResponseDTO = professionalService
+                .createProfessional(professionalRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(professionalResponseDTO);
     }
 
@@ -38,7 +38,7 @@ public class ProfessionalController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProfessionalResponseDTO>>  getAllProfessionals() {
+    public ResponseEntity<List<ProfessionalResponseDTO>> getAllProfessionals() {
         List<ProfessionalResponseDTO> professionalResponseDTOList = professionalService.findAll();
         return ResponseEntity.ok(professionalResponseDTOList);
     }
@@ -47,7 +47,8 @@ public class ProfessionalController {
     public ResponseEntity<ProfessionalResponseDTO> updateProfessional(
             @PathVariable UUID professional_id,
             @Valid @RequestBody ProfessionalRequestDTO professionalRequestDTO) {
-        ProfessionalResponseDTO professionalResponseDTO = professionalService.updateProfessional(professional_id, professionalRequestDTO);
+        ProfessionalResponseDTO professionalResponseDTO = professionalService.updateProfessional(professional_id,
+                professionalRequestDTO);
         return ResponseEntity.ok(professionalResponseDTO);
     }
 
@@ -57,11 +58,12 @@ public class ProfessionalController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{professionalId}/schedules")
+    @GetMapping("/{professionalId}/{date}")
     public ResponseEntity<List<ScheduleResponseDTO>> getSchedulesByProfessional(
             @PathVariable UUID professionalId,
-            @Valid @RequestBody LocalDate date) {
-        List<ScheduleResponseDTO> schedules = professionalService.getSchedulesByProfessionalAndDate(professionalId, date);
+            @Valid @PathVariable LocalDate date) {
+        List<ScheduleResponseDTO> schedules = professionalService.getSchedulesByProfessionalAndDate(professionalId,
+                date);
         return ResponseEntity.ok(schedules);
     }
 }

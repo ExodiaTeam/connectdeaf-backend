@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Set;
+import java.util.List;
 
 @Configuration
 public class AdminUserConfig implements CommandLineRunner {
@@ -29,17 +30,17 @@ public class AdminUserConfig implements CommandLineRunner {
     public void run(String... args) throws Exception {
         Role adminRole = roleRepository.findByName(Role.Values.ROLE_ADMIN.name());
 
-        userRepository.findByEmail("admin@email.com").ifPresentOrElse(
-                admin -> System.out.println("Admin user already exists"),
-                () -> {
-                    User adminUser = new User();
-                    adminUser.setName("Admin");
-                    adminUser.setEmail("admin@email.com");
-                    adminUser.setPassword(passwordEncoder.encode("admin"));
-                    adminUser.setRoles(Set.of(adminRole));
-                    userRepository.save(adminUser);
-                    System.out.println("Admin user created");
-                }
-        );
+        List<User> adminUsers = userRepository.findByEmail("admin@email.com");
+        if (adminUsers.isEmpty()) {
+            User adminUser = new User();
+            adminUser.setName("Admin");
+            adminUser.setEmail("admin@email.com");
+            adminUser.setPassword(passwordEncoder.encode("admin"));
+            adminUser.setRoles(Set.of(adminRole));
+            userRepository.save(adminUser);
+            System.out.println("Admin user created");
+        } else {
+            System.out.println("Admin user already exists");
+        }
     }
 }
