@@ -62,6 +62,7 @@ public class ServiceController {
         serviceService.deleteService(serviceId);
         return ResponseEntity.noContent().build();
     }
+    
 
     @GetMapping("/search")
     public ResponseEntity<List<ServiceEntity>> findServices(

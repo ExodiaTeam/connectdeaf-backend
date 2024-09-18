@@ -12,6 +12,7 @@ import com.connectdeaf.repositories.RoleRepository;
 import com.connectdeaf.repositories.UserRepository;
 
 import jakarta.transaction.Transactional;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,12 +39,11 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO, boolean isProfessional) {
-        Optional<User> userOptional = userRepository.findByEmail(userRequestDTO.email());
+        List<User> users = userRepository.findByEmail(userRequestDTO.email());
 
-        if (userOptional.isPresent()) {
+        if (!users.isEmpty()) {
             throw new EmailAlreadyExistsException(userRequestDTO.email());
         }
-
 
         User newUser = new User();
         newUser.setName(userRequestDTO.name());
@@ -157,6 +157,10 @@ public class UserService {
     }
 
     public Optional<User> findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        List<User> users = userRepository.findByEmail(email);
+        if (users.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+        return Optional.of(users.get(0));
     }
 }
