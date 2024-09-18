@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Service
 public class ProfessionalService {
@@ -105,6 +106,16 @@ public class ProfessionalService {
 
     private ProfessionalResponseDTO createProfessionalResponseDTO(Professional professional) {
         User user = professional.getUser();
+        List<AddressResponseDTO> addressResponseDTOs = user.getAddresses() != null
+                ? user.getAddresses().stream()
+                    .map(address -> new AddressResponseDTO(
+                        address.getStreet(),
+                        address.getCity(),
+                        address.getState(),
+                        address.getCep()))
+                    .collect(Collectors.toList())
+                : Collections.emptyList(); // Retorna uma lista vazia se getAddresses() for null
+
         return new ProfessionalResponseDTO(
                 professional.getId(),
                 user.getName(),
@@ -115,13 +126,7 @@ public class ProfessionalService {
                 professional.getWorkStartTime(),
                 professional.getWorkEndTime(),
                 professional.getBreakDuration(),
-                professional.getUser().getAddresses().stream().map(
-                        address -> new AddressResponseDTO(
-                                address.getStreet(),
-                                address.getCity(),
-                                address.getState(),
-                                address.getCep()))
-                        .collect(Collectors.toList()));
+                addressResponseDTOs);
     }
 
     public List<ProfessionalResponseDTO> findAll() {

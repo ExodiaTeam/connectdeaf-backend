@@ -17,6 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/professionals")
+@CrossOrigin(origins = "http://localhost:5173") 
 public class ProfessionalController {
     private final ProfessionalService professionalService;
 
@@ -57,11 +58,12 @@ public class ProfessionalController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{professionalId}/schedules")
+    @GetMapping("/{professionalId}/{date}")
     public ResponseEntity<List<ScheduleResponseDTO>> getSchedulesByProfessional(
             @PathVariable UUID professionalId,
-            @Valid @RequestBody LocalDate date) {
-        List<ScheduleResponseDTO> schedules = professionalService.getSchedulesByProfessionalAndDate(professionalId, date);
+            @Valid @PathVariable LocalDate date) {
+        List<ScheduleResponseDTO> schedules = professionalService.getSchedulesByProfessionalAndDate(professionalId,
+                date);
         return ResponseEntity.ok(schedules);
     }
 }
