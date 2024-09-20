@@ -5,13 +5,13 @@ import com.connectdeaf.controllers.dtos.requests.UserRequestDTO;
 import com.connectdeaf.controllers.dtos.response.ProfessionalResponseDTO;
 import com.connectdeaf.controllers.dtos.response.ScheduleResponseDTO;
 import com.connectdeaf.controllers.dtos.response.UserResponseDTO;
+import com.connectdeaf.controllers.dtos.response.AddressResponseDTO;
 import com.connectdeaf.domain.professional.Professional;
 import com.connectdeaf.domain.schedule.Schedule;
 import com.connectdeaf.domain.user.User;
 import com.connectdeaf.exceptions.ProfessionalNotFoundException;
 import com.connectdeaf.repositories.ProfessionalRepository;
 import com.connectdeaf.repositories.ScheduleRepository;
-import com.connectdeaf.controllers.dtos.response.AddressResponseDTO;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -41,8 +41,6 @@ public class ProfessionalService {
 
     @Transactional
     public ProfessionalResponseDTO createProfessional(ProfessionalRequestDTO professionalRequestDTO) {
-        // userService.findByEmail(professionalRequestDTO.email());
-
         UserRequestDTO userRequestDTO = new UserRequestDTO(
                 professionalRequestDTO.name(),
                 professionalRequestDTO.email(),
@@ -68,6 +66,7 @@ public class ProfessionalService {
         return createProfessionalResponseDTO(savedProfessional);
     }
 
+    @Transactional
     public ProfessionalResponseDTO findById(UUID professionalId) {
         Professional professional = professionalRepository.findById(professionalId)
                 .orElseThrow(() -> new ProfessionalNotFoundException());
@@ -104,17 +103,72 @@ public class ProfessionalService {
         return createProfessionalResponseDTO(updatedProfessional);
     }
 
+    @Transactional
+    public List<ProfessionalResponseDTO> findAll() {
+        return professionalRepository.findAll()
+                .stream()
+                .map(this::createProfessionalResponseDTO)
+                .toList();
+    }
+
+    @Transactional
+    public void deleteProfessional(UUID professionalId) {
+        Professional professional = professionalRepository.findById(professionalId)
+                .orElseThrow(() -> new ProfessionalNotFoundException());
+
+        professionalRepository.delete(professional);
+    }
+
+    @Transactional
+    public List<ScheduleResponseDTO> getSchedulesByProfessionalAndDate(UUID professionalId, LocalDate date) {
+        List<Schedule> schedulesNotAvaibled = scheduleRepository.findByProfessionalIdAndDate(professionalId, date);
+        List<Schedule> schedulesAvaibled = generateSchedulesAvaibled(professionalId, date, schedulesNotAvaibled);
+        return schedulesAvaibled.stream()
+                .map(this::createScheduleResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    private List<Schedule> generateSchedulesAvaibled(UUID professionalId, LocalDate date,
+            List<Schedule> schedulesNotAvaibled) {
+        Professional professional = professionalRepository.findById(professionalId)
+                .orElseThrow(() -> new ProfessionalNotFoundException());
+
+        LocalTime workStartTime = professional.getWorkStartTime();
+        LocalTime workEndTime = professional.getWorkEndTime();
+        Duration sessionDuration = professional.getBreakDuration();
+
+        List<Schedule> schedulesAvaibled = new ArrayList<>();
+        LocalTime currentTime = workStartTime;
+
+        while (!currentTime.plus(sessionDuration).isAfter(workEndTime)) {
+            final LocalTime startTime = currentTime;
+            final LocalTime endTime = currentTime.plus(sessionDuration);
+
+            boolean isAvailable = schedulesNotAvaibled.stream()
+                    .noneMatch(schedule -> schedule.getStartTime().equals(startTime));
+
+            if (isAvailable) {
+                schedulesAvaibled.add(new Schedule(null, professional, date, startTime, endTime));
+            }
+
+            currentTime = endTime;
+        }
+
+        return schedulesAvaibled;
+    }
+
     private ProfessionalResponseDTO createProfessionalResponseDTO(Professional professional) {
         User user = professional.getUser();
         List<AddressResponseDTO> addressResponseDTOs = user.getAddresses() != null
                 ? user.getAddresses().stream()
-                    .map(address -> new AddressResponseDTO(
-                        address.getStreet(),
-                        address.getCity(),
-                        address.getState(),
-                        address.getCep()))
-                    .collect(Collectors.toList())
-                : Collections.emptyList(); // Retorna uma lista vazia se getAddresses() for null
+                        .map(address -> new AddressResponseDTO(
+                                address.getStreet(),
+                                address.getCity(),
+                                address.getState(),
+                                address.getCep()))
+                        .collect(Collectors.toList())
+                : Collections.emptyList();
 
         return new ProfessionalResponseDTO(
                 professional.getId(),
@@ -129,62 +183,6 @@ public class ProfessionalService {
                 addressResponseDTOs);
     }
 
-    public List<ProfessionalResponseDTO> findAll() {
-        return professionalRepository.findAll()
-                .stream()
-                .map(this::createProfessionalResponseDTO)
-                .toList();
-    }
-
-    public void deleteProfessional(UUID professionalId) {
-        Professional professional = professionalRepository.findById(professionalId)
-                .orElseThrow(() -> new ProfessionalNotFoundException());
-
-        professionalRepository.delete(professional);
-    }
-
-    // Método para listar os horários de um profissional
-    public List<ScheduleResponseDTO> getSchedulesByProfessionalAndDate(UUID professionalId, LocalDate date) {
-        List<Schedule> schedulesNotAvaibled = scheduleRepository.findByProfessionalIdAndDate(professionalId, date);
-        List<Schedule> schedulesAvaibled = generateSchedulesAvaibled(professionalId, date, schedulesNotAvaibled);
-        return schedulesAvaibled.stream()
-                .map(this::createScheduleResponseDTO)
-                .collect(Collectors.toList());
-    }
-
-    private List<Schedule> generateSchedulesAvaibled(UUID professionalId, LocalDate date,
-            List<Schedule> schedulesNotAvaibled) {
-        Professional professional = professionalRepository.findById(professionalId)
-                .orElseThrow(() -> new ProfessionalNotFoundException());
-
-        LocalTime workStartTime = professional.getWorkStartTime();
-        LocalTime workEndTime = professional.getWorkEndTime();
-        Duration sessionDuration = professional.getBreakDuration(); // Duração da sessão de trabalho
-
-        List<Schedule> schedulesAvaibled = new ArrayList<>();
-        LocalTime currentTime = workStartTime;
-
-        // Itera sobre o tempo de trabalho até o final do expediente
-        while (!currentTime.plus(sessionDuration).isAfter(workEndTime)) {
-            final LocalTime startTime = currentTime;
-            final LocalTime endTime = currentTime.plus(sessionDuration);
-
-            // Verifica se o horário está disponível
-            boolean isAvailable = schedulesNotAvaibled.stream()
-                    .noneMatch(schedule -> schedule.getStartTime().equals(startTime));
-
-            if (isAvailable) {
-                schedulesAvaibled.add(new Schedule(null, professional, date, startTime, endTime));
-            }
-
-            // Avança para o próximo slot
-            currentTime = endTime;
-        }
-
-        return schedulesAvaibled;
-    }
-
-    // Método auxiliar para converter Schedule em DTO
     private ScheduleResponseDTO createScheduleResponseDTO(Schedule schedule) {
         return new ScheduleResponseDTO(
                 schedule.getId(),

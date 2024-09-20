@@ -18,7 +18,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173") 
+@CrossOrigin(origins = "http://localhost:5173, https://app-connectdeaf-web-hml.azurewebsites.net") 
 public class AuthController {
     private final AuthService authService;
 

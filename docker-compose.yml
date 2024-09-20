@@ -1,6 +1,20 @@
 version: '3.8'
 services:
-  postgres:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/connectdeaf_db
+      - SPRING_DATASOURCE_USERNAME=connectdeaf_user
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      - db
+    networks:
+      - connectdeaf-network
+
+  db:
     image: postgres:16
     container_name: connectdeaf_postgres
     environment:
