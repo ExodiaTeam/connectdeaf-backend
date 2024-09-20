@@ -24,7 +24,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/appointments")
-@CrossOrigin(origins = "http://localhost:5173") 
+@CrossOrigin(origins = "http://localhost:5173, https://app-connectdeaf-web-hml.azurewebsites.net") 
 public class AppointmentController {
     private final AppointmentService appointmentService;
 

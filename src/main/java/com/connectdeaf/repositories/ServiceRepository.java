@@ -1,11 +1,13 @@
 package com.connectdeaf.repositories;
 
+import com.connectdeaf.domain.professional.Professional;
 import com.connectdeaf.domain.service.ServiceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import org.springframework.lang.NonNull;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +18,6 @@ public interface ServiceRepository extends JpaRepository<ServiceEntity, UUID>, J
     Optional<ServiceEntity> findById(@NonNull UUID id);
     
     Optional<ServiceEntity> findByName(String name);
+
+    List<ServiceEntity> findByProfessional(Professional professional);
 }

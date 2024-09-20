@@ -50,6 +50,7 @@ public class ServiceService {
                 mapToProfessionalResponseDTO(savedService.getProfessional()));
     }
 
+    @Transactional
     public ServiceResponseDTO findServiceById(UUID serviceId) {
         ServiceEntity serviceEntity = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new ServiceNotFoundException());
@@ -62,6 +63,7 @@ public class ServiceService {
                 mapToProfessionalResponseDTO(serviceEntity.getProfessional()));
     }
 
+    @Transactional
     public List<ServiceResponseDTO> findAllServices() {
         return serviceRepository.findAll().stream()
                 .map(service -> new ServiceResponseDTO(
@@ -73,12 +75,14 @@ public class ServiceService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void deleteService(UUID serviceId) {
         ServiceEntity serviceEntity = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new ServiceNotFoundException());
         serviceRepository.delete(serviceEntity);
-    }
+        }
 
+    @Transactional
     public List<ServiceEntity> findServices(String name, String city, String state) {
         Specification<ServiceEntity> spec = Specification.where(null);
 
@@ -107,6 +111,21 @@ public class ServiceService {
     private Specification<ServiceEntity> stateContains(String state) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.join("professional").get("state"),
                 "%" + state + "%");
+    }
+
+    @Transactional
+    public List<ServiceResponseDTO> findServicesByProfessional(UUID professionalId) {
+        Professional professional = professionalRepository.findById(professionalId)
+                .orElseThrow(() -> new ProfessionalNotFoundException());
+
+        return serviceRepository.findByProfessional(professional).stream()
+                .map(service -> new ServiceResponseDTO(
+                        service.getId(),
+                        service.getName(),
+                        service.getDescription(),
+                        service.getValue(),
+                        mapToProfessionalResponseDTO(service.getProfessional())))
+                .collect(Collectors.toList());
     }
 
     private ProfessionalResponseDTO mapToProfessionalResponseDTO(Professional professional) {

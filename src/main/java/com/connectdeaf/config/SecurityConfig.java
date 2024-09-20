@@ -1,5 +1,6 @@
 package com.connectdeaf.config;
 
+import com.connectdeaf.domain.user.Role;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -43,22 +44,26 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/users").permitAll()
+                        // Rotas públicas
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/professionals").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/appointments/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/services").permitAll()
-                        // Rotas administrativas
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // Rotas de aprovação e rejeição de agendamentos apenas para profissionais
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+                        // Rotas específicas para profissionais
+                        .requestMatchers(HttpMethod.PATCH, "/api/services/*").hasRole("PROFESSIONAL")
                         .requestMatchers(HttpMethod.PATCH, "/api/appointments/*/approve").hasRole("PROFESSIONAL")
                         .requestMatchers(HttpMethod.PATCH, "/api/appointments/*/reject").hasRole("PROFESSIONAL")
-                        // Rotas autenticadas
+                        .requestMatchers(HttpMethod.PATCH, "/api/appointments/*/cancel").hasRole("PROFESSIONAL")
+                        .requestMatchers(HttpMethod.PATCH, "/api/appointments/*/finish").hasRole("PROFESSIONAL")
+
+                        // Rotas que requerem autenticação
+                        .requestMatchers(HttpMethod.PATCH, "/api/appointments/**").authenticated()
                         .requestMatchers("/api/**").authenticated()
-                        // Qualquer outra requisição precisa estar autenticada
+
+                        // Qualquer outra requisição
                         .anyRequest().authenticated())
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/login", "/api/users", "/api/professionals"))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions -> exceptions
@@ -88,7 +93,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedOrigins(
+                Arrays.asList("http://localhost:5173", "https://app-connectdeaf-web-hml.azurewebsites.net"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

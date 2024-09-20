@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173, https://app-connectdeaf-web-hml.azurewebsites.net")
 public class UserController {
     private final UserService userService;
 

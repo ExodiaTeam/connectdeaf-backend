@@ -40,6 +40,14 @@ public class AuthService {
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
         logger.info("Tentativa de login para o email: {}", loginRequestDTO.email());
 
+        User user = authenticateUser(loginRequestDTO);
+        String jwtToken = generateJwtToken(user);
+
+        logger.info("Login bem-sucedido para o email: {}", loginRequestDTO.email());
+        return new LoginResponseDTO(jwtToken, 3600L);
+    }
+
+    private User authenticateUser(LoginRequestDTO loginRequestDTO) {
         User user = userService.findUserByEmail(loginRequestDTO.email())
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
@@ -48,8 +56,12 @@ public class AuthService {
             throw new BadCredentialsException("Email ou senha inválidos");
         }
 
+        return user;
+    }
+
+    private String generateJwtToken(User user) {
         var now = Instant.now();
-        var expiresIn = 3600L; // Aumentado para 1 hora
+        var expiresIn = 3600L;
 
         var claimsBuilder = JwtClaimsSet.builder()
                 .issuer("connect-deaf-app")
@@ -59,17 +71,10 @@ public class AuthService {
                 .claim("email", user.getEmail())
                 .claim("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
 
-        // Verifica se o usuário é um profissional e adiciona o ID do profissional ao
-        // JWT
         Optional<Professional> professionalOpt = professionalRepository.findByUser(user);
-        if (professionalOpt.isPresent()) {
-            claimsBuilder.claim("professionalId", professionalOpt.get().getId().toString());
-        }
+        professionalOpt.ifPresent(professional -> claimsBuilder.claim("professionalId", professional.getId().toString()));
 
         var claims = claimsBuilder.build();
-        var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-
-        logger.info("Login bem-sucedido para o email: {}", loginRequestDTO.email());
-        return new LoginResponseDTO(jwtValue, expiresIn);
+        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 }

@@ -25,7 +25,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/services")
-@CrossOrigin(origins = "http://localhost:5173") 
+@CrossOrigin(origins = "http://localhost:5173, https://app-connectdeaf-web-hml.azurewebsites.net") 
 public class ServiceController {
     private final ServiceService serviceService;
 
@@ -61,6 +61,12 @@ public class ServiceController {
     public ResponseEntity<Void> deleteService(@PathVariable("service_id") UUID serviceId) {
         serviceService.deleteService(serviceId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/professional/{professional_id}")
+    public ResponseEntity<List<ServiceResponseDTO>> getServicesByProfessional(@PathVariable("professional_id") UUID professionalId) {
+        List<ServiceResponseDTO> services = serviceService.findServicesByProfessional(professionalId);
+        return ResponseEntity.ok(services);
     }
     
 
